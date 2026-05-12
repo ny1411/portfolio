@@ -99,7 +99,7 @@ User Scroll Input
 
 ### 1. Core Infrastructure
 
-- [ ] #### [NEW] `src/lib/gsap.ts`
+- [x] #### [NEW] `src/lib/gsap.ts`
 GSAP registration and configuration singleton. Registers ScrollTrigger plugin once, exports configured gsap instance.
 
 ```typescript
@@ -109,7 +109,7 @@ gsap.registerPlugin(ScrollTrigger);
 export { gsap, ScrollTrigger };
 ```
 
-- [ ] #### [NEW] `src/lib/lenis.ts`
+- [x] #### [NEW] `src/lib/lenis.ts`
 Lenis factory with RAF synchronization. Creates a singleton Lenis instance that pipes into GSAP's ticker instead of running its own RAF loop.
 
 ```typescript
@@ -119,10 +119,10 @@ gsap.ticker.add((time) => { lenis.raf(time * 1000); });
 gsap.ticker.lagSmoothing(0); // prevent GSAP from throttling
 ```
 
-- [ ] #### [NEW] `src/lib/rafScheduler.ts`
+- [x] #### [NEW] `src/lib/rafScheduler.ts`
 Centralized requestAnimationFrame orchestrator. Prevents multiple RAF loops from competing. Exposes `schedule(callback, priority)` for canvas draws, Three.js renders, and UI updates.
 
-- [ ] #### [NEW] `src/lib/performance.ts`
+- [x] #### [NEW] `src/lib/performance.ts`
 Runtime performance detection: device tier (low/mid/high), preferred frame count, canvas DPR cap, reduced-motion flag. Used by scenes to adapt quality.
 
 ```typescript
@@ -135,10 +135,10 @@ export interface DeviceProfile {
 }
 ```
 
-- [ ] #### [NEW] `src/lib/sequenceLoader.ts`
+- [x] #### [NEW] `src/lib/sequenceLoader.ts`
 Progressive frame loader with batched preloading, priority queue, and abort support. Loads frames using `createImageBitmap()` for off-main-thread decoding when available.
 
-- [ ] #### [NEW] `src/lib/frameCache.ts`
+- [x] #### [NEW] `src/lib/frameCache.ts`
 LRU frame cache with configurable memory budget. Evicts frames from inactive scenes. Tracks memory pressure via `performance.memory` API when available.
 
 ```typescript
@@ -229,7 +229,7 @@ export interface ScrollRange {
 
 ### 3. Scroll Store (Zustand)
 
-- [ ] #### [NEW] `src/components/scrolly/scrollStore.ts`
+- [x] #### [NEW] `src/components/scrolly/scrollStore.ts`
 
 ```typescript
 import { create } from 'zustand';
@@ -258,7 +258,7 @@ Zustand chosen over Context API because scroll state updates at 60fps — Contex
 
 ### 4. Scrollytelling Engine Components
 
-- [ ] #### [NEW] `src/components/scrolly/ScrollyPage.tsx`
+- [x] #### [NEW] `src/components/scrolly/ScrollyPage.tsx`
 Top-level orchestrator. Initializes Lenis, sets up global ScrollTrigger, renders Scene components. Manages the unified RAF loop.
 
 **Responsibilities:**
@@ -268,7 +268,7 @@ Top-level orchestrator. Initializes Lenis, sets up global ScrollTrigger, renders
 - Resize handling with debounced ScrollTrigger.refresh()
 - Cleanup on unmount
 
-- [ ] #### [NEW] `src/components/scrolly/Scene.tsx`
+- [x] #### [NEW] `src/components/scrolly/Scene.tsx`
 Generic scene wrapper. Accepts `SceneConfig`, creates ScrollTrigger pin, manages scene lifecycle.
 
 ```tsx
@@ -283,7 +283,7 @@ interface SceneProps {
 // Activates/deactivates child renderers based on visibility
 ```
 
-- [ ] #### [NEW] `src/components/scrolly/ImageSequenceCanvas.tsx`
+- [x] #### [NEW] `src/components/scrolly/ImageSequenceCanvas.tsx`
 Canvas-based frame renderer. Receives `sequenceConfig` + `progress` (0→1), maps progress to frame index, draws to canvas.
 
 **Key implementation details:**
@@ -294,23 +294,23 @@ Canvas-based frame renderer. Receives `sequenceConfig` + `progress` (0→1), map
 - Skips redundant draws via draw-key deduplication
 - Integrates with `FrameCache` for LRU memory management
 
-- [ ] #### [NEW] `src/components/scrolly/SceneOverlay.tsx`
+- [x] #### [NEW] `src/components/scrolly/SceneOverlay.tsx`
 Glassmorphic content overlay positioned over the canvas. Handles enter/exit animations via GSAP scrub.
 
-- [ ] #### [NEW] `src/components/scrolly/SceneTextReveal.tsx`
+- [x] #### [NEW] `src/components/scrolly/SceneTextReveal.tsx`
 Text animation component supporting multiple reveal styles: fade-up, split-text (per-character), typewriter, slide-in. All driven by scroll progress.
 
-- [ ] #### [NEW] `src/components/scrolly/SceneProgress.tsx`
+- [x] #### [NEW] `src/components/scrolly/SceneProgress.tsx`
 Visual progress indicator — thin accent-colored bar at top of viewport showing scene progress.
 
-- [ ] #### [NEW] `src/components/scrolly/VideoScrub.tsx`
+- [x] #### [NEW] `src/components/scrolly/VideoScrub.tsx`
 Alternative to ImageSequenceCanvas for browsers/scenes where video scrubbing is preferred. Uses `<video>` element with `currentTime` mapped to scroll progress. Fallback only — canvas is primary.
 
 ---
 
 ### 5. Custom Hooks
 
-- [ ] #### [NEW] `src/components/scrolly/useScrollSync.ts`
+- [x] #### [NEW] `src/components/scrolly/useScrollSync.ts`
 Connects Lenis scroll events to GSAP ScrollTrigger. Handles the critical Lenis↔GSAP bridge.
 
 ```typescript
@@ -322,7 +322,7 @@ export function useScrollSync() {
 }
 ```
 
-- [ ] #### [NEW] `src/components/scrolly/usePinnedScene.ts`
+- [x] #### [NEW] `src/components/scrolly/usePinnedScene.ts`
 Creates a ScrollTrigger pin for a scene element. Returns progress ref and lifecycle callbacks.
 
 ```typescript
@@ -332,13 +332,13 @@ export function usePinnedScene(
 )
 ```
 
-- [ ] #### [NEW] `src/components/scrolly/useSceneProgress.ts`
+- [x] #### [NEW] `src/components/scrolly/useSceneProgress.ts`
 Subscribes to Zustand store for a specific scene's progress. Uses `useRef` to avoid re-renders — exposes progress via ref.
 
-- [ ] #### [NEW] `src/components/scrolly/useImageSequence.ts`
+- [x] #### [NEW] `src/components/scrolly/useImageSequence.ts`
 Manages frame loading, preloading, caching, and drawing for a single sequence. Refactored from current `ScrollytellingPage` logic into a composable hook.
 
-- [ ] #### [NEW] `src/components/scrolly/useReducedMotion.ts`
+- [x] #### [NEW] `src/components/scrolly/useReducedMotion.ts`
 `prefers-reduced-motion` media query hook. Returns boolean. When true, scenes skip to static keyframes instead of animating.
 
 ---
@@ -347,29 +347,29 @@ Manages frame loading, preloading, caching, and drawing for a single sequence. R
 
 Each section is a scene configuration + custom content. All use the `Scene` wrapper.
 
-- [ ] #### [MODIFY] `src/components/sections/HeroSection.tsx`
+- [x] #### [MODIFY] `src/components/sections/HeroSection.tsx`
 Cinematic hero with Three.js background OR frame sequence. Full-viewport pinned scene. Text: name, title, "scroll to explore" prompt. Parallax layers with depth.
 
-- [ ] #### [NEW] `src/components/sections/AboutSection.tsx`  
+- [x] #### [NEW] `src/components/sections/AboutSection.tsx`  
 Split-screen: frame sequence left, text reveal right. Skills highlights with staggered fade-in.
 
-- [ ] #### [MODIFY] `src/components/sections/ExperienceSection.tsx`
+- [x] #### [MODIFY] `src/components/sections/ExperienceSection.tsx`
 Timeline layout pinned over frame sequence. Each role animates in as scroll progresses. Cards slide in from alternating sides.
 
-- [ ] #### [MODIFY] `src/components/sections/ProjectsSection.tsx`
+- [x] #### [MODIFY] `src/components/sections/ProjectsSection.tsx`
 Showcase cards that scale up from thumbnails as user scrolls. Each project gets a sub-scene with its own frame range.
 
-- [ ] #### [NEW] `src/components/sections/SkillsSection.tsx`
+- [x] #### [NEW] `src/components/sections/SkillsSection.tsx`
 Animated skill grid/visualization. Could use Lottie for decorative elements. Staggered reveals driven by scroll.
 
-- [ ] #### [NEW] `src/components/sections/ContactSection.tsx`
+- [x] #### [NEW] `src/components/sections/ContactSection.tsx`
 Outro scene with contact links. Reverse-parallax effect pulling content together. Final frame sequence holds on last frame.
 
 ---
 
 ### 7. Three.js Hero Scene
 
-- [ ] #### [NEW] `src/components/three/HeroThreeScene.tsx`
+- [x] #### [NEW] `src/components/three/HeroThreeScene.tsx`
 
 **Constraints:** Single isolated `<canvas>`, not a site-wide WebGL context. Lazy-loaded via `React.lazy()`.
 
@@ -617,7 +617,7 @@ export function destroyLenis(): void {
 ## Verification Plan
 
 #### Automated Tests
-- [ ] `npm run build` — TypeScript compilation + Vite production build passes
+- [x] `npm run build` — TypeScript compilation + Vite production build passes
 - [ ] Lighthouse performance audit targeting >90 score
 - [ ] `npm run dev` — visual verification in browser
 
