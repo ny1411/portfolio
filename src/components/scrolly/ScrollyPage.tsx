@@ -19,7 +19,6 @@ const scenes: SceneConfig[] = [
     id: 'hero',
     label: 'Hero',
     pinDuration: 240,
-    threeScene: true,
     sequence: {
       folder: 'video1',
       prefix: 'video',
