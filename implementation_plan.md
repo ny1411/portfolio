@@ -605,12 +605,12 @@ export function destroyLenis(): void {
 
 ### 14. Production Deployment
 
-- [ ] **Build**: `vite build` with `rollupOptions.output.manualChunks` for Three.js/Lottie
+- [x] **Build**: `vite build` with `rollupOptions.output.manualChunks` for Three.js/Lottie
 - [ ] **Assets**: Serve frames from CDN with aggressive caching (`Cache-Control: immutable`)
 - [ ] **Compression**: Brotli for JS/CSS, WebP for frames
-- [ ] **Preload**: `<link rel="preload">` for first 5 hero frames
+- [x] **Preload**: `<link rel="preload">` for first 5 hero frames
 - [ ] **Metrics**: Track LCP (hero first frame), FID, CLS, frame drop rate
-- [ ] **Fallback**: If WebGL unavailable, hero falls back to frame sequence
+- [x] **Fallback**: If WebGL unavailable, hero falls back to frame sequence
 
 ---
 
@@ -619,12 +619,12 @@ export function destroyLenis(): void {
 #### Automated Tests
 - [x] `npm run build` — TypeScript compilation + Vite production build passes
 - [ ] Lighthouse performance audit targeting >90 score
-- [ ] `npm run dev` — visual verification in browser
+- [x] `npm run dev` — visual verification in browser
 
 #### Manual Verification
 - [ ] Scroll through all 6 scenes on desktop Chrome/Firefox/Safari
 - [ ] Test on mobile (Chrome Android, Safari iOS)
-- [ ] Verify `prefers-reduced-motion` behavior
+- [x] Verify `prefers-reduced-motion` behavior
 - [ ] Verify keyboard navigation through scenes
 - [ ] Check frame drop rate in Chrome DevTools Performance panel (target: <5% dropped frames)
 - [ ] Memory profiling: confirm <300MB peak on desktop, <150MB on mobile

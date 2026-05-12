@@ -1,5 +1,6 @@
 import { useMemo, useRef, type ReactNode } from 'react'
 import type { SceneConfig } from '../../types/scene'
+import { ImageSequenceCanvas } from './ImageSequenceCanvas'
 import { useScrollStore } from './scrollStore'
 import { SceneOverlay } from './SceneOverlay'
 import { usePinnedScene } from './usePinnedScene'
@@ -38,6 +39,7 @@ export function Scene({ config, children, index }: SceneProps) {
 
   return (
     <section className="scrolly-scene" id={config.id} ref={sceneRef} aria-label={config.label}>
+      <ImageSequenceCanvas sceneId={config.id} sequence={config.sequence} />
       {children}
       <SceneOverlay overlays={config.overlays} />
     </section>

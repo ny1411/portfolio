@@ -1,4 +1,5 @@
 import { frameCache } from './frameCache'
+import { getBundledFrameUrl } from './frameManifest'
 import type { CachedFrame, SequenceConfig } from '../types/sequence'
 
 export function getFrameCount(sequence: SequenceConfig): number {
@@ -13,7 +14,9 @@ export function getFrameIndex(sequence: SequenceConfig, progress: number): numbe
 
 export function getFrameSrc(sequence: SequenceConfig, index: number): string {
   const extension = sequence.extension ?? 'jpg'
-  return `${sequence.folder}/${sequence.prefix}${String(index).padStart(4, '0')}.${extension}`
+  const filename = `${sequence.prefix}${String(index).padStart(4, '0')}.${extension}`
+
+  return getBundledFrameUrl(sequence.folder, filename) ?? `/src/assets/frames/${sequence.folder}/${filename}`
 }
 
 export async function loadFrame(
@@ -36,6 +39,24 @@ export async function loadFrame(
   const cachedFrame = { key: src, sceneId, frame, priority: 1 }
   frameCache.set(src, cachedFrame)
   return cachedFrame
+}
+
+export function preloadSequenceFrames(sequence: SequenceConfig, count: number): void {
+  if (typeof document === 'undefined') return
+
+  const endIndex = Math.min(sequence.endIndex, sequence.startIndex + count - 1)
+
+  for (let index = sequence.startIndex; index <= endIndex; index += 1) {
+    const href = getFrameSrc(sequence, index)
+    const existing = document.head.querySelector(`link[rel="preload"][href="${href}"]`)
+    if (existing) continue
+
+    const link = document.createElement('link')
+    link.rel = 'preload'
+    link.as = 'image'
+    link.href = href
+    document.head.appendChild(link)
+  }
 }
 
 function loadImageElement(src: string): Promise<HTMLImageElement> {
