@@ -1,4 +1,5 @@
 import { useMemo, useRef, type ReactNode } from 'react'
+import { getCinematicPinDuration } from '../../lib/cinematicScrub'
 import type { SceneConfig } from '../../types/scene'
 import { ImageSequenceCanvas } from './ImageSequenceCanvas'
 import { useScrollStore } from './scrollStore'
@@ -14,12 +15,12 @@ interface SceneProps {
 export function Scene({ config, children, index }: SceneProps) {
   const sceneRef = useRef<HTMLElement>(null)
   const store = useScrollStore
-  const pinDuration = config.pinDuration ?? 300
+  const pinDuration = config.pinDuration ?? getCinematicPinDuration(config.sequence)
 
   const pinnedOptions = useMemo(
     () => ({
       pinDuration,
-      scrub: 1,
+      scrub: 2.2,
       onEnter: () => {
         store.getState().setActiveScene(config.id, index)
         config.hooks?.onActivate?.()

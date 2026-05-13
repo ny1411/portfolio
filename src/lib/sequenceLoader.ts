@@ -2,6 +2,8 @@ import { frameCache } from './frameCache'
 import { getBundledFrameUrl } from './frameManifest'
 import type { CachedFrame, SequenceConfig } from '../types/sequence'
 
+const pendingFrames = new Map<string, Promise<CachedFrame>>()
+
 export function getFrameCount(sequence: SequenceConfig): number {
   return sequence.endIndex - sequence.startIndex + 1
 }
@@ -29,16 +31,39 @@ export async function loadFrame(
   const cached = frameCache.get(src)
   if (cached) return cached
 
-  const response = await fetch(src, { signal })
-  const blob = await response.blob()
-  const frame =
-    'createImageBitmap' in window
-      ? await createImageBitmap(blob)
-      : await loadImageElement(URL.createObjectURL(blob))
+  const pending = pendingFrames.get(src)
+  if (pending) return pending
 
-  const cachedFrame = { key: src, sceneId, frame, priority: 1 }
-  frameCache.set(src, cachedFrame)
-  return cachedFrame
+  const pendingFrame = fetch(src, { signal })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to load frame ${src}: ${response.status}`)
+      }
+
+      const blob = await response.blob()
+      const frame =
+        'createImageBitmap' in window
+          ? await createImageBitmap(blob)
+          : await loadImageElement(URL.createObjectURL(blob))
+      const cachedFrame = { key: src, sceneId, frame, priority: 1 }
+
+      frameCache.set(src, cachedFrame)
+      return cachedFrame
+    })
+    .finally(() => pendingFrames.delete(src))
+
+  pendingFrames.set(src, pendingFrame)
+  return pendingFrame
+}
+
+export function preloadFrameWindow(sceneId: string, sequence: SequenceConfig, centerIndex: number): void {
+  const radius = sequence.preloadRadius ?? 12
+  const startIndex = Math.max(sequence.startIndex, centerIndex - radius)
+  const endIndex = Math.min(sequence.endIndex, centerIndex + radius)
+
+  for (let index = startIndex; index <= endIndex; index += 1) {
+    void loadFrame(sceneId, sequence, index).catch(() => undefined)
+  }
 }
 
 export function preloadSequenceFrames(sequence: SequenceConfig, count: number): void {

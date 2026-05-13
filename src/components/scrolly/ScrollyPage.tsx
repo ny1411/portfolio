@@ -18,7 +18,6 @@ const scenes: SceneConfig[] = [
   {
     id: 'hero',
     label: 'Hero',
-    pinDuration: 240,
     sequence: {
       folder: 'video1',
       prefix: 'video',
@@ -31,7 +30,6 @@ const scenes: SceneConfig[] = [
   {
     id: 'about',
     label: 'About',
-    pinDuration: 260,
     sequence: {
       folder: 'video2',
       prefix: 'video',
@@ -44,7 +42,6 @@ const scenes: SceneConfig[] = [
   {
     id: 'experience',
     label: 'Experience',
-    pinDuration: 300,
     sequence: {
       folder: 'video3',
       prefix: 'video',
@@ -57,7 +54,6 @@ const scenes: SceneConfig[] = [
   {
     id: 'projects',
     label: 'Projects',
-    pinDuration: 320,
     sequence: {
       folder: 'video4',
       prefix: 'video',
@@ -70,7 +66,6 @@ const scenes: SceneConfig[] = [
   {
     id: 'skills',
     label: 'Skills',
-    pinDuration: 240,
     sequence: {
       folder: 'video5',
       prefix: 'video',
@@ -83,7 +78,6 @@ const scenes: SceneConfig[] = [
   {
     id: 'contact',
     label: 'Contact',
-    pinDuration: 220,
     sequence: {
       folder: 'video6',
       prefix: 'video',

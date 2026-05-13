@@ -7,6 +7,9 @@ export interface SequenceConfig {
   preloadStrategy?: 'eager' | 'lazy' | 'viewport'
   preloadRadius?: number
   interpolation?: 'nearest' | 'linear'
+  scrollVhPerFrame?: number
+  smoothing?: number
+  maxFrameStep?: number
 }
 
 export interface ScrollRange {

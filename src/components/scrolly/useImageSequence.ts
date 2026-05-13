@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { getDeviceProfile } from '../../lib/performance'
-import { getFrameIndex, loadFrame } from '../../lib/sequenceLoader'
+import { getFrameIndex, loadFrame, preloadFrameWindow } from '../../lib/sequenceLoader'
 import type { SequenceConfig } from '../../types/sequence'
 
 export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
-  const abortRef = useRef<AbortController | null>(null)
   const lastDrawKeyRef = useRef<string>('')
+  const latestRequestRef = useRef(0)
+  const lastPreloadIndexRef = useRef<number | null>(null)
 
   const draw = useCallback(
     async (canvas: HTMLCanvasElement, progress: number) => {
@@ -24,10 +25,12 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
       if (lastDrawKeyRef.current === drawKey) return
       lastDrawKeyRef.current = drawKey
 
-      abortRef.current?.abort()
-      abortRef.current = new AbortController()
+      const requestId = latestRequestRef.current + 1
+      latestRequestRef.current = requestId
 
-      const cached = await loadFrame(sceneId, sequence, frameIndex, abortRef.current.signal)
+      const cached = await loadFrame(sceneId, sequence, frameIndex)
+      if (requestId !== latestRequestRef.current) return
+
       canvas.width = Math.round(width * dpr)
       canvas.height = Math.round(height * dpr)
       canvas.style.width = `${width}px`
@@ -36,11 +39,18 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
       context.setTransform(dpr, 0, 0, dpr, 0, 0)
       context.clearRect(0, 0, width, height)
       drawCover(context, cached.frame, width, height)
+
+      if (lastPreloadIndexRef.current !== frameIndex) {
+        lastPreloadIndexRef.current = frameIndex
+        preloadFrameWindow(sceneId, sequence, frameIndex)
+      }
     },
     [sceneId, sequence],
   )
 
-  useEffect(() => () => abortRef.current?.abort(), [])
+  useEffect(() => {
+    latestRequestRef.current += 1
+  }, [sequence])
 
   return { draw }
 }
