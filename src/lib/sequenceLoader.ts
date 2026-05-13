@@ -61,6 +61,17 @@ export function preloadFrameWindow(sceneId: string, sequence: SequenceConfig, ce
   const startIndex = Math.max(sequence.startIndex, centerIndex - radius)
   const endIndex = Math.min(sequence.endIndex, centerIndex + radius)
 
+  if (sequence.preloadStrategy === 'cinematic') {
+    const nearbyIndexes = getNearbyIndexes(centerIndex, startIndex, endIndex).slice(0, 8)
+
+    nearbyIndexes.forEach((index, order) => {
+      window.setTimeout(() => {
+        void loadFrame(sceneId, sequence, index).catch(() => undefined)
+      }, order * 48)
+    })
+    return
+  }
+
   for (let index = startIndex; index <= endIndex; index += 1) {
     void loadFrame(sceneId, sequence, index).catch(() => undefined)
   }
@@ -84,6 +95,15 @@ export function preloadSequenceFrames(sequence: SequenceConfig, count: number): 
   }
 }
 
+export async function preloadCinematicFrames(
+  sceneId: string,
+  sequence: SequenceConfig,
+): Promise<void> {
+  const firstFrame = await loadFrame(sceneId, sequence, sequence.startIndex)
+  frameCache.set(firstFrame.key, { ...firstFrame, priority: 10 })
+  preloadFrameWindow(sceneId, sequence, sequence.startIndex)
+}
+
 function loadImageElement(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image()
@@ -92,4 +112,18 @@ function loadImageElement(src: string): Promise<HTMLImageElement> {
     image.onerror = reject
     image.src = src
   })
+}
+
+function getNearbyIndexes(centerIndex: number, startIndex: number, endIndex: number): number[] {
+  const indexes: number[] = []
+
+  for (let offset = 1; offset <= endIndex - startIndex; offset += 1) {
+    const nextIndex = centerIndex + offset
+    const previousIndex = centerIndex - offset
+
+    if (nextIndex <= endIndex) indexes.push(nextIndex)
+    if (previousIndex >= startIndex) indexes.push(previousIndex)
+  }
+
+  return indexes
 }

@@ -4,7 +4,7 @@ export interface SequenceConfig {
   startIndex: number
   endIndex: number
   extension?: 'jpg' | 'webp' | 'avif'
-  preloadStrategy?: 'eager' | 'lazy' | 'viewport'
+  preloadStrategy?: 'eager' | 'lazy' | 'viewport' | 'cinematic'
   preloadRadius?: number
   interpolation?: 'nearest' | 'linear'
   scrollVhPerFrame?: number

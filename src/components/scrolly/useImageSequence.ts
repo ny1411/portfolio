@@ -10,10 +10,10 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
 
   const draw = useCallback(
     async (canvas: HTMLCanvasElement, progress: number) => {
-      if (!sequence) return
+      if (!sequence) return false
 
       const context = canvas.getContext('2d')
-      if (!context) return
+      if (!context) return false
 
       const profile = getDeviceProfile()
       const dpr = Math.min(window.devicePixelRatio || 1, profile.maxDPR)
@@ -22,14 +22,13 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
       const frameIndex = getFrameIndex(sequence, progress)
       const drawKey = `${frameIndex}:${width}:${height}:${dpr}`
 
-      if (lastDrawKeyRef.current === drawKey) return
-      lastDrawKeyRef.current = drawKey
+      if (lastDrawKeyRef.current === drawKey) return false
 
       const requestId = latestRequestRef.current + 1
       latestRequestRef.current = requestId
 
       const cached = await loadFrame(sceneId, sequence, frameIndex)
-      if (requestId !== latestRequestRef.current) return
+      if (requestId !== latestRequestRef.current) return false
 
       canvas.width = Math.round(width * dpr)
       canvas.height = Math.round(height * dpr)
@@ -39,11 +38,14 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
       context.setTransform(dpr, 0, 0, dpr, 0, 0)
       context.clearRect(0, 0, width, height)
       drawCover(context, cached.frame, width, height)
+      lastDrawKeyRef.current = drawKey
 
       if (lastPreloadIndexRef.current !== frameIndex) {
         lastPreloadIndexRef.current = frameIndex
         preloadFrameWindow(sceneId, sequence, frameIndex)
       }
+
+      return true
     },
     [sceneId, sequence],
   )
