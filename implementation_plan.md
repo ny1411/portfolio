@@ -367,7 +367,391 @@ Outro scene with contact links. Reverse-parallax effect pulling content together
 
 ---
 
-### 7. Three.js Hero Scene
+### 7. Spider-Man Cinematic Text Synchronization System
+
+This section adds a Spider-Man themed cinematic scrollytelling scene modeled directly after the Iron Man repository's `CinematicReveal` architecture. The implementation must use **one normalized `progress` source of truth** for the entire scene. Do not build this as a set of independent GSAP timelines, card-specific scroll triggers, or event-based enter/leave handlers.
+
+#### Architecture Decision
+
+- [ ] #### [NEW] `src/components/sections/SpiderVerseReveal.tsx`
+Add a full cinematic Spider-Man section after the hero or as a theme-specific replacement scene.
+
+**Core layout:**
+- Outer section: oversized scroll range, `300vh` mobile, `350vh` tablet, `400vh` desktop.
+- Inner viewport: `position: sticky; top: 0; height: 100dvh; overflow: hidden`.
+- Canvas: absolute, full-viewport, cover-fit frame sequence.
+- Text overlays: absolute inside the sticky viewport.
+- HUD/progress UI: absolute inside the same sticky viewport.
+- Outro CTA: absolute overlay that fades/slides in near the end of progress.
+
+**Synchronization rule:**
+
+```typescript
+scroll -> normalized progress -> frame index + heading opacity + beat visibility + progress UI + outro CTA
+```
+
+The local section owns a single `progressRef.current` value. Every visual output reads from that value in the same RAF pass:
+- frame sequence
+- cinematic heading crossfade
+- beat cards
+- progress bar/readout
+- final CTA reveal
+
+#### Scroll Progress Capture
+
+- [ ] #### [NEW] `src/components/scrolly/useScrollProgress.ts`
+Reusable normalized scroll hook for sticky/oversized cinematic sections.
+
+**Responsibilities:**
+- Accept a `sectionRef`.
+- Attach one passive `window` scroll listener.
+- Throttle work with `requestAnimationFrame`.
+- Calculate progress from section geometry.
+- Clamp progress to `0..1`.
+- Expose hot-path values through refs to avoid render loops.
+- Optionally call `onProgress(progress)` once per RAF.
+
+```typescript
+const scrollable = section.offsetHeight - window.innerHeight;
+const progress =
+  scrollable <= 0
+    ? 0
+    : Math.min(1, Math.max(0, -section.getBoundingClientRect().top / scrollable));
+```
+
+**Non-goals:**
+- No per-card listeners.
+- No IntersectionObserver per text beat.
+- No event-triggered text sequencing.
+- No independent GSAP timeline per overlay.
+
+If the existing `Scene` wrapper remains GSAP-backed, use it only to define the section boundary and scroll range. The Spider-Man text system still receives a single normalized `progress` number and uses explicit progress windows for all visible state.
+
+#### Spider-Man Narrative Data
+
+- [ ] #### [NEW] `src/data/spiderman.ts`
+Define frame sequence metadata, heading timing, beat windows, progress labels, and CTA text.
+
+```typescript
+export const SPIDER_FRAME_COUNT = 169;
+
+export const spiderFramePath = (n: number) =>
+  `/frames/spiderman/frame_${String(n).padStart(4, "0")}.webp`;
+
+export type CinematicBeat = {
+  id: string;
+  show: number;
+  hide: number;
+  label: string;
+  quote: string;
+  speaker?: string;
+  align: "left" | "right" | "center" | "bottom";
+};
+
+export const SPIDER_BEATS: CinematicBeat[] = [
+  {
+    id: "power",
+    show: 0.10,
+    hide: 0.24,
+    label: "01 // Origin Signal",
+    quote: "With great power...",
+    align: "left",
+  },
+  {
+    id: "responsibility",
+    show: 0.18,
+    hide: 0.36,
+    label: "02 // Responsibility",
+    quote: "Comes great responsibility.",
+    align: "right",
+  },
+  {
+    id: "friendly-neighborhood",
+    show: 0.38,
+    hide: 0.54,
+    label: "03 // Queens Patrol",
+    quote: "Friendly Neighborhood Spider-Man.",
+    align: "left",
+  },
+  {
+    id: "neighborhood-hero",
+    show: 0.52,
+    hide: 0.68,
+    label: "04 // Street Level Hero",
+    quote: "Your friendly neighborhood hero.",
+    align: "right",
+  },
+  {
+    id: "no-way-home",
+    show: 0.70,
+    hide: 0.84,
+    label: "05 // Multiverse Breach",
+    quote: "No way home.",
+    align: "center",
+  },
+  {
+    id: "final-cta",
+    show: 0.88,
+    hide: 1.00,
+    label: "06 // Web Launch",
+    quote: "Swing into the archive.",
+    align: "bottom",
+  },
+];
+```
+
+Beat ranges may overlap intentionally. Use overlaps for cinematic crossfades, not independent trigger chains. For example, `power` and `responsibility` overlap from `0.18..0.24` so the first phrase can fade while the second rises.
+
+#### Text Synchronization System
+
+- [ ] #### [NEW] `src/components/scrolly/CinematicBeatCard.tsx`
+Reusable overlay card used by Spider-Man, Iron Man, Batman, and future hero themes.
+
+**Visibility contract:**
+
+```typescript
+const visible = progress >= beat.show && progress <= beat.hide;
+```
+
+**Desktop placement:**
+- `left`: `top-[24%] left-6 md:left-12`
+- `right`: `top-[42%] right-6 md:right-12`
+- `center`: `left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`
+- `bottom`: `bottom-24 right-6 md:bottom-28 md:right-12`
+
+**Mobile placement:**
+- Use one stacked overlay rail: `absolute inset-x-0 top-[34%] z-20 flex flex-col gap-3 px-5`.
+- Keep all cards in the same mobile rail; only the active window changes opacity/translate.
+- Use safe-area padding: `padding-bottom: max(1rem, env(safe-area-inset-bottom))`.
+
+**Animation behavior:**
+- Visible: `opacity: 1`, `translateY(0)`.
+- Hidden desktop: `opacity: 0`, `translateY(20px)`.
+- Hidden mobile: `opacity: 0`, `translateY(14px)`.
+- Transition: `opacity 320ms ease-out, transform 320ms ease-out`.
+- Cards are absolutely positioned once; progress only toggles visual state.
+- Do not animate `top`, `left`, `width`, or `height`.
+
+```tsx
+<figure
+  className={cn(
+    "spider-card transition-[opacity,transform] duration-300 ease-out",
+    visible ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0"
+  )}
+>
+  ...
+</figure>
+```
+
+#### Heading Crossfade System
+
+Spider-Man equivalent of the Iron Man "I am inevitable" -> "And I am Iron Man" crossfade:
+
+- Heading A: `With Great Power`
+- Heading B: `Comes Great Responsibility`
+
+**Timing:**
+- Heading A full opacity: `0.00..0.42`
+- Heading A fades out: `0.42..0.54`
+- Heading B fades in: `0.46..0.60`
+- Heading B full opacity: `0.60..1.00`
+- Crossfade overlap: `0.46..0.54`
+
+**Interpolation:**
+
+```typescript
+const powerOpacity = clamp((0.54 - progress) / 0.12);
+const responsibilityOpacity = clamp((progress - 0.46) / 0.14);
+const powerY = (1 - powerOpacity) * -10;
+const responsibilityY = (1 - responsibilityOpacity) * 12;
+```
+
+**Implementation details:**
+- Both headings occupy the same absolute/relative heading stack.
+- Heading B is `absolute inset-0` over Heading A.
+- Mutate `style.opacity` and `style.transform` via refs in the RAF scroll pass.
+- Use CSS transition `opacity 180ms linear, transform 180ms ease-out`.
+- Use responsive typography: `text-4xl md:text-6xl lg:text-7xl`, `leading-[0.95]`, no viewport-width font scaling.
+- On mobile, limit heading width to avoid covering beat cards: `max-w-[12ch]`.
+
+#### File-Level Implementation Plan
+
+- [ ] #### [NEW] `src/components/sections/SpiderVerseReveal.tsx`
+Owns the Spider-Man cinematic scene. Mirrors Iron Man `CinematicReveal`: refs for section, canvas, headings, outro, progress fill, readout, image frames, last frame, ticking flag, and previous visible beat ids.
+
+- [ ] #### [NEW] `src/data/spiderman.ts`
+Holds `SPIDER_FRAME_COUNT`, `spiderFramePath`, `SPIDER_BEATS`, heading timing constants, CTA copy, and theme tokens.
+
+- [ ] #### [NEW] `src/components/scrolly/useScrollProgress.ts`
+Reusable normalized progress capture hook. Returns `progressRef`, `subscribe`, and optional current progress state for low-frequency UI only.
+
+- [ ] #### [NEW] `src/components/scrolly/CinematicRevealScene.tsx`
+Optional reusable scene shell that renders the oversized section, sticky viewport, canvas slot, heading slot, beat slot, HUD slot, and CTA slot.
+
+- [ ] #### [NEW] `src/components/scrolly/CinematicBeatCard.tsx`
+Reusable text card renderer with desktop/mobile positioning and progress-window visibility.
+
+- [ ] #### [NEW] `src/lib/cinematicTiming.ts`
+Shared helpers: `clamp`, `rangeProgress`, `opacityIn`, `opacityOut`, `progressToFrameIndex`, and `visibleInWindow`.
+
+```typescript
+export const visibleInWindow = (progress: number, show: number, hide: number) =>
+  progress >= show && progress <= hide;
+
+export const progressToFrameIndex = (progress: number, frameCount: number) =>
+  Math.min(frameCount - 1, Math.floor(progress * frameCount));
+```
+
+- [ ] #### [MODIFY] `src/lib/sequenceLoader.ts`
+Add an eager-first-frame + progressive-nearby preload mode for cinematic scenes. First frame must be available before the loading overlay clears.
+
+- [ ] #### [MODIFY] `src/styles/globals.css`
+Add `.cinematic-scroll`, `.cinematic-sticky`, `.spider-card`, `.spider-hud`, and Spider-Man theme tokens.
+
+```css
+.cinematic-scroll {
+  height: 400vh;
+}
+
+@media (max-width: 1024px) {
+  .cinematic-scroll {
+    height: 350vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .cinematic-scroll {
+    height: 300vh;
+  }
+}
+```
+
+- [ ] #### [MODIFY] `src/App.tsx` or `src/components/scrolly/ScrollyPage.tsx`
+Mount `SpiderVerseReveal` in the scene order and ensure Lenis is initialized once at the app shell.
+
+#### Runtime Pseudocode
+
+```typescript
+function onScroll() {
+  if (tickingRef.current) return;
+  tickingRef.current = true;
+
+  requestAnimationFrame(() => {
+    tickingRef.current = false;
+
+    const progress = getNormalizedSectionProgress(sectionRef.current);
+    progressRef.current = progress;
+
+    const frameIndex = progressToFrameIndex(progress, SPIDER_FRAME_COUNT);
+    if (frameIndex !== lastFrameRef.current) {
+      lastFrameRef.current = frameIndex;
+      drawFrame(frameIndex);
+    }
+
+    updateHeadingCrossfade(progress);
+    updateProgressBar(progress);
+    updateReadout(frameIndex);
+    updateOutro(progress);
+
+    const visibleIds = SPIDER_BEATS
+      .filter((beat) => progress >= beat.show && progress <= beat.hide)
+      .map((beat) => beat.id)
+      .sort()
+      .join(",");
+
+    if (visibleIds !== prevVisibleIdsRef.current) {
+      prevVisibleIdsRef.current = visibleIds;
+      setVisibleBeatIds(new Set(visibleIds ? visibleIds.split(",") : []));
+    }
+  });
+}
+```
+
+#### Data Flow
+
+```
+Window scroll
+  -> passive scroll listener
+  -> RAF throttle
+  -> section rect + section height
+  -> normalized progress 0..1
+  -> frame index = floor(progress * frameCount)
+  -> canvas draw if frame changed
+  -> heading opacity/translate refs
+  -> beat visibility windows
+  -> progress bar scaleX(progress)
+  -> readout text
+  -> outro opacity/translate
+```
+
+#### Performance & Anti-Jank Strategy
+
+- Use one passive window scroll listener for the scene.
+- Gate scroll work with `tickingRef` and `requestAnimationFrame`.
+- Keep hot-path values in refs: `progressRef`, `loadedRef`, `lastFrameRef`, `prevVisibleIdsRef`.
+- Draw canvas only when `frameIndex !== lastFrameRef.current`.
+- Mutate heading/outro/progress/readout refs directly instead of pushing every scroll tick through React state.
+- Use React state only for low-frequency beat visibility changes.
+- Preload frames before enabling the scroll-driven render path.
+- Use `img.decode()` or `createImageBitmap()` where supported.
+- Cover-fit canvas once per resize; redraw current frame after resize.
+- Cap DPR through `performance.ts` for mobile/low-power devices.
+- Keep transitions to `opacity` and `transform`.
+- Use `will-change` only on canvas and currently animating overlays.
+
+#### Mobile Behavior
+
+- Reduce scroll section height to `300vh` so the scene does not feel sluggish on touch.
+- Use one vertical overlay rail instead of desktop side-positioned cards.
+- Hidden-card translate distance: `14px` mobile vs `20px` desktop.
+- Reduce heading size and line length: `text-4xl`, `max-w-[12ch]`.
+- Increase bottom UI padding with `env(safe-area-inset-bottom)`.
+- Use tighter card padding: `p-4` or `p-5`.
+- Keep CTA above browser chrome: `bottom: max(5rem, calc(4rem + env(safe-area-inset-bottom)))`.
+- Disable decorative parallax layers on low-tier mobile profiles.
+
+#### Reusability Across Hero Themes
+
+- [ ] #### [NEW] `src/types/cinematic.ts`
+Theme-agnostic data contracts:
+
+```typescript
+export interface CinematicTheme {
+  id: "spiderman" | "ironman" | "batman" | string;
+  frameCount: number;
+  framePath: (n: number) => string;
+  beats: CinematicBeat[];
+  headings: {
+    primary: string;
+    secondary: string;
+    primaryFade: [number, number];
+    secondaryFade: [number, number];
+  };
+  outro: {
+    show: number;
+    full: number;
+    label: string;
+    cta: string;
+    href: string;
+  };
+}
+```
+
+**Reusable pattern:**
+- `CinematicRevealScene` handles sticky layout, canvas, HUD, and progress flow.
+- `useScrollProgress` supplies normalized progress.
+- `useImageSequence` handles preload/cache/draw.
+- `CinematicBeatCard` renders all hero text beats.
+- Theme data files (`spiderman.ts`, `ironman.ts`, `batman.ts`) provide thresholds, copy, frame paths, and visual tokens.
+
+**Future themes:**
+- Iron Man: reuse existing `CinematicReveal` beat windows and 169-frame sequence.
+- Batman: darker palette, detective-log beat labels, city/gargoyle frame sequence.
+- Spider-Man: red/blue accent tokens, web HUD, responsibility crossfade, neighborhood beat cards.
+
+---
+
+### 8. Three.js Hero Scene
 
 - [x] #### [NEW] `src/components/three/HeroThreeScene.tsx`
 
@@ -393,7 +777,7 @@ useFrame(() => {
 
 ---
 
-### 8. Animation Strategy
+### 9. Animation Strategy
 
 | Context | Tool | Why |
 |---------|------|-----|
@@ -414,7 +798,7 @@ useFrame(() => {
 
 ---
 
-### 9. Performance Engineering
+### 10. Performance Engineering
 
 **60fps Strategy:**
 1. **Single RAF loop** — Lenis pipes into GSAP ticker; no competing `requestAnimationFrame` calls
@@ -451,7 +835,7 @@ done
 
 ---
 
-### 10. Accessibility + Reduced Motion
+### 11. Accessibility + Reduced Motion
 
 ```typescript
 // useReducedMotion.ts
@@ -486,7 +870,7 @@ export function useReducedMotion(): boolean {
 
 ---
 
-### 11. Project Structure (Final)
+### 12. Project Structure (Final)
 
 ```
 src/
@@ -545,9 +929,31 @@ src/
 └── main.tsx
 ```
 
+Spider-Man cinematic additions to the final structure:
+
+```
+src/
+  components/
+    sections/
+      SpiderVerseReveal.tsx          # Spider-Man cinematic scrollytelling section
+    scrolly/
+      CinematicRevealScene.tsx       # Reusable sticky cinematic scene shell
+      CinematicBeatCard.tsx          # Progress-window overlay card
+      useScrollProgress.ts           # Normalized progress source of truth
+  data/
+    spiderman.ts                     # Spider-Man beats, headings, frame metadata
+  lib/
+    cinematicTiming.ts               # clamp/range/frame-index/visibility helpers
+  types/
+    cinematic.ts                     # Theme-agnostic cinematic contracts
+  assets/
+    frames/
+      spiderman/                     # Spider-Man frame sequence
+```
+
 ---
 
-### 12. Lenis + GSAP Integration (Detailed)
+### 13. Lenis + GSAP Integration (Detailed)
 
 ```typescript
 // lib/lenis.ts
@@ -581,7 +987,7 @@ export function destroyLenis(): void {
 }
 ```
 
-### 13. Example Scene Lifecycle
+### 14. Example Scene Lifecycle
 
 ```
 1. ScrollyPage mounts → createLenis() → unified RAF starts
@@ -603,7 +1009,7 @@ export function destroyLenis(): void {
 
 ---
 
-### 14. Production Deployment
+### 15. Production Deployment
 
 - [x] **Build**: `vite build` with `rollupOptions.output.manualChunks` for Three.js/Lottie
 - [ ] **Assets**: Serve frames from CDN with aggressive caching (`Cache-Control: immutable`)
