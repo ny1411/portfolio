@@ -1,6 +1,9 @@
 import { useMemo, useRef, type ReactNode } from 'react'
+import { CINEMATIC_TEXT_SCENES } from '../../data/cinematicSections'
 import { getCinematicPinDuration } from '../../lib/cinematicScrub'
 import type { SceneConfig } from '../../types/scene'
+import { CinematicSceneOverlay } from './CinematicSceneOverlay'
+import { CinematicSceneHud } from './CinematicSceneHud'
 import { ImageSequenceCanvas } from './ImageSequenceCanvas'
 import { useScrollStore } from './scrollStore'
 import { SceneOverlay } from './SceneOverlay'
@@ -42,6 +45,15 @@ export function Scene({ config, children, index }: SceneProps) {
     <section className="scrolly-scene" id={config.id} ref={sceneRef} aria-label={config.label}>
       <ImageSequenceCanvas sceneId={config.id} sequence={config.sequence} />
       {children}
+      <CinematicSceneOverlay
+        config={CINEMATIC_TEXT_SCENES[config.id]}
+        sceneId={config.id}
+      />
+      <CinematicSceneHud
+        label={config.label}
+        sceneId={config.id}
+        sequence={config.sequence}
+      />
       <SceneOverlay overlays={config.overlays} />
     </section>
   )
