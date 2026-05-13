@@ -13,6 +13,7 @@ dist-ssr
 *.local
 .env
 .env.*.local
+.playwright-mcp/
 
 src/assets/frames
 
