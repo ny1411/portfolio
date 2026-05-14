@@ -1,5 +1,3 @@
-import type { SequenceConfig } from './sequence'
-
 export type CinematicBeatAlign =
   | 'left'
   | 'right'
@@ -20,7 +18,6 @@ export type CinematicCardAnimation =
   | 'cta'
 
 export type CinematicCardTone =
-  | 'spider'
   | 'hero'
   | 'experience'
   | 'project'
@@ -47,32 +44,8 @@ export interface CinematicCardModel {
   persist?: boolean
 }
 
-export type CinematicBeat = CinematicCardModel
-
 export interface CinematicTextScene {
   id: string
   label: string
   cards: CinematicCardModel[]
-}
-
-export interface CinematicTheme {
-  id: 'spiderman' | 'ironman' | 'batman' | string
-  label: string
-  frameCount: number
-  framePath: (n: number) => string
-  sequence: SequenceConfig
-  beats: CinematicBeat[]
-  headings: {
-    primary: string
-    secondary: string
-    primaryFade: [number, number]
-    secondaryFade: [number, number]
-  }
-  outro: {
-    show: number
-    full: number
-    label: string
-    cta: string
-    href: string
-  }
 }

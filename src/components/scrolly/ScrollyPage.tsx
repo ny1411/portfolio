@@ -9,7 +9,6 @@ import { ExperienceSection } from '../sections/ExperienceSection'
 import { HeroSection } from '../sections/HeroSection'
 import { ProjectsSection } from '../sections/ProjectsSection'
 import { SkillsSection } from '../sections/SkillsSection'
-import { SpiderVerseReveal } from '../sections/SpiderVerseReveal'
 import { Scene } from './Scene'
 import { SceneNav } from './SceneNav'
 import { useScrollStore } from './scrollStore'
@@ -90,12 +89,6 @@ const scenes: SceneConfig[] = [
   },
 ]
 
-const navScenes: SceneConfig[] = [
-  scenes[0],
-  { id: 'spider-verse', label: 'Spider-Verse' },
-  ...scenes.slice(1),
-]
-
 const sceneContent = [
   <HeroSection />,
   <AboutSection />,
@@ -154,14 +147,10 @@ export function ScrollyPage() {
       <a className="skip-link" href="#about">
         Skip to content
       </a>
-      <SceneNav scenes={navScenes} />
-      <Scene config={scenes[0]} index={0} key={scenes[0].id}>
-        {sceneContent[0]}
-      </Scene>
-      <SpiderVerseReveal sceneIndex={1} />
-      {scenes.slice(1).map((scene, index) => (
-        <Scene config={scene} index={index + 2} key={scene.id}>
-          {sceneContent[index + 1]}
+      <SceneNav scenes={scenes} />
+      {scenes.map((scene, index) => (
+        <Scene config={scene} index={index} key={scene.id}>
+          {sceneContent[index]}
         </Scene>
       ))}
     </main>

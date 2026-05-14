@@ -117,15 +117,6 @@ export async function preloadSequenceFrameRange(
   await Promise.all(workers)
 }
 
-export async function preloadCinematicFrames(
-  sceneId: string,
-  sequence: SequenceConfig,
-): Promise<void> {
-  const firstFrame = await loadFrame(sceneId, sequence, sequence.startIndex)
-  frameCache.set(firstFrame.key, { ...firstFrame, priority: 10 })
-  preloadFrameWindow(sceneId, sequence, sequence.startIndex)
-}
-
 function loadImageElement(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image()
