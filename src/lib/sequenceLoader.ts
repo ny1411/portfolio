@@ -95,6 +95,28 @@ export function preloadSequenceFrames(sequence: SequenceConfig, count: number): 
   }
 }
 
+export async function preloadSequenceFrameRange(
+  sceneId: string,
+  sequence: SequenceConfig,
+  signal?: AbortSignal,
+  concurrency = 6,
+): Promise<void> {
+  const frameCount = getFrameCount(sequence)
+  let nextIndex = sequence.startIndex
+
+  const workers = Array.from({ length: Math.min(concurrency, frameCount) }, async () => {
+    while (nextIndex <= sequence.endIndex) {
+      if (signal?.aborted) return
+
+      const index = nextIndex
+      nextIndex += 1
+      await loadFrame(sceneId, sequence, index, signal)
+    }
+  })
+
+  await Promise.all(workers)
+}
+
 export async function preloadCinematicFrames(
   sceneId: string,
   sequence: SequenceConfig,

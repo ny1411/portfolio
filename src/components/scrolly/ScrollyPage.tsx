@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ScrollTrigger } from '../../lib/gsap'
-import { preloadSequenceFrames } from '../../lib/sequenceLoader'
+import { preloadSequenceFrameRange } from '../../lib/sequenceLoader'
 import type { SceneConfig } from '../../types/scene'
+import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
 import { AboutSection } from '../sections/AboutSection'
 import { ContactSection } from '../sections/ContactSection'
 import { ExperienceSection } from '../sections/ExperienceSection'
@@ -104,8 +105,29 @@ const sceneContent = [
   <ContactSection />,
 ]
 
+const MIN_STARTUP_LOADER_MS = 3000
+
 export function ScrollyPage() {
+  const [startupReady, setStartupReady] = useState(false)
+
   useScrollSync()
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const heroSequence = scenes[0].sequence
+    const minimumDelay = new Promise((resolve) => {
+      window.setTimeout(resolve, MIN_STARTUP_LOADER_MS)
+    })
+    const framePreload = heroSequence
+      ? preloadSequenceFrameRange(scenes[0].id, heroSequence, controller.signal)
+      : Promise.resolve()
+
+    void Promise.all([minimumDelay, framePreload.catch(() => undefined)]).then(() => {
+      if (!controller.signal.aborted) setStartupReady(true)
+    })
+
+    return () => controller.abort()
+  }, [])
 
   useEffect(() => {
     const updateGlobalProgress = () => {
@@ -119,9 +141,6 @@ export function ScrollyPage() {
     window.addEventListener('resize', refreshScrollTriggers)
     updateGlobalProgress()
 
-    const heroSequence = scenes[0].sequence
-    if (heroSequence) preloadSequenceFrames(heroSequence, 5)
-
     return () => {
       window.removeEventListener('scroll', updateGlobalProgress)
       window.removeEventListener('resize', refreshScrollTriggers)
@@ -130,7 +149,8 @@ export function ScrollyPage() {
   }, [])
 
   return (
-    <main className="scrolly-page">
+    <main className={`scrolly-page ${startupReady ? 'is-ready' : 'is-loading'}`}>
+      {!startupReady && <SpiderLogoLoader />}
       <a className="skip-link" href="#about">
         Skip to content
       </a>
