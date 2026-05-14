@@ -162,6 +162,26 @@ The core decision is to keep a single normalized progress value per scene as the
 - [x] Updated `.gitignore`
   - Ignores `.playwright-mcp/`.
 
+### 7. 3D Startup Loader
+
+- [x] Added `src/components/loaders/SpiderLogoLoader.tsx`
+  - Uses `src/assets/3d-elements/spider_logo3d.glb` as a removable startup loader component.
+  - Spins the 3D logo in a constrained React Three Fiber canvas.
+  - Applies a runtime Spider-Man red material with subtle procedural grain.
+  - Falls back gracefully when WebGL is unavailable.
+
+- [x] Updated `src/components/scrolly/ScrollyPage.tsx`
+  - Shows the 3D loader before the hero section is revealed.
+  - Keeps the loader visible for at least 3 seconds.
+  - Keeps the loader running longer when the initial hero frame range is still loading.
+
+- [x] Updated `src/lib/sequenceLoader.ts`
+  - Added a concurrency-limited full-range frame preload helper for initial scene readiness.
+
+- [x] Updated `src/styles/globals.css`
+  - Styles the startup loader shell, centered 3D logo canvas, and WebGL fallback mark.
+  - Removes the lower loading-line animation from the startup loader.
+
 ## Current Architecture
 
 ### Standard Scene Flow
@@ -308,6 +328,7 @@ Cards can overlap intentionally to create cinematic crossfades. The system does 
 - [x] Confirmed green top progress line is gone.
 - [x] Confirmed SpiderVerse HUD/header and footer remain visible.
 - [x] Confirmed skills list no longer overlaps on mobile.
+- [x] Confirmed 3D startup loader build/lint verification passes.
 
 ## Commit History
 
@@ -315,6 +336,8 @@ Cards can overlap intentionally to create cinematic crossfades. The system does 
 - [x] `b08c3ce feat(scrolly): add reusable cinematic text cards`
 - [x] `2a1c3c1 feat(spider): add cinematic spider-verse reveal`
 - [x] `792eabd chore: ignore playwright artifacts`
+- [x] `e9d84fe feat(loader): add 3d startup loader`
+- [x] `2fae714 perf(loader): preload hero frames before reveal`
 
 ## Remaining Follow-Up Tasks
 
@@ -348,5 +371,4 @@ Cards can overlap intentionally to create cinematic crossfades. The system does 
 
 ## Known Workspace State
 
-- [ ] `src/assets/3d-elements/` is currently untracked and was not touched by the cinematic text implementation.
-
+- [x] `src/assets/3d-elements/` contains the 3D logo consumed by the startup loader.
