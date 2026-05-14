@@ -63,6 +63,55 @@ select {
     linear-gradient(180deg, #080b0f 0%, #0f172a 48%, #020617 100%);
 }
 
+.scrolly-page.is-loading {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.startup-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(90deg, rgba(56, 189, 248, 0.12) 0 1px, transparent 1px 42px),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.98), rgba(8, 12, 22, 0.96));
+}
+
+.startup-loader__canvas {
+  width: clamp(12rem, 28vw, 24rem) !important;
+  height: clamp(12rem, 28vw, 24rem) !important;
+}
+
+.startup-loader__mark {
+  width: clamp(7rem, 20vw, 12rem);
+  aspect-ratio: 1;
+  border: 2px solid rgba(56, 189, 248, 0.22);
+  border-top-color: #ef233c;
+  border-right-color: #38bdf8;
+  border-radius: 999px;
+  box-shadow: 0 0 48px rgba(56, 189, 248, 0.2);
+  animation: startup-logo-spin 1.25s linear infinite;
+}
+
+.startup-loader__label {
+  position: absolute;
+  bottom: clamp(4rem, 10vh, 6.2rem);
+  color: #e0f2fe;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@keyframes startup-logo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .scrolly-scene {
   position: relative;
   display: grid;
