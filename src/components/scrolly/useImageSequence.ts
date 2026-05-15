@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
+import { smoothScrubProgress } from '../../lib/cinematicScrub'
 import { getDeviceProfile } from '../../lib/performance'
 import { getFrameIndex, loadFrame, preloadFrameWindow } from '../../lib/sequenceLoader'
 import type { SequenceConfig } from '../../types/sequence'
@@ -7,9 +8,16 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
   const lastDrawKeyRef = useRef<string>('')
   const latestRequestRef = useRef(0)
   const lastPreloadIndexRef = useRef<number | null>(null)
+  const smoothedProgressRef = useRef(0)
+  const lastTickRef = useRef<number | null>(null)
 
   const draw = useCallback(
-    async (canvas: HTMLCanvasElement, progress: number) => {
+    async (
+      canvas: HTMLCanvasElement,
+      targetProgress: number,
+      time = performance.now(),
+      immediate = false,
+    ) => {
       if (!sequence) return false
 
       const context = canvas.getContext('2d')
@@ -19,6 +27,14 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
       const dpr = Math.min(window.devicePixelRatio || 1, profile.maxDPR)
       const width = window.innerWidth
       const height = window.innerHeight
+      const progress = getRenderedProgress({
+        target: targetProgress,
+        time,
+        sequence,
+        smoothedProgressRef,
+        lastTickRef,
+        immediate,
+      })
       const frameIndex = getFrameIndex(sequence, progress)
       const drawKey = `${frameIndex}:${width}:${height}:${dpr}`
 
@@ -52,9 +68,49 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
 
   useEffect(() => {
     latestRequestRef.current += 1
+    smoothedProgressRef.current = 0
+    lastTickRef.current = null
+    lastDrawKeyRef.current = ''
+    lastPreloadIndexRef.current = null
   }, [sequence])
 
   return { draw }
+}
+
+function getRenderedProgress({
+  target,
+  time,
+  sequence,
+  smoothedProgressRef,
+  lastTickRef,
+  immediate,
+}: {
+  target: number
+  time: number
+  sequence: SequenceConfig
+  smoothedProgressRef: RefObject<number>
+  lastTickRef: RefObject<number | null>
+  immediate: boolean
+}): number {
+  const clampedTarget = clamp(target, 0, 1)
+  const lastTick = lastTickRef.current
+
+  if (immediate || lastTick === null) {
+    lastTickRef.current = time
+    smoothedProgressRef.current = clampedTarget
+    return clampedTarget
+  }
+
+  const elapsedMs = Math.max(0, time - lastTick)
+  lastTickRef.current = time
+  smoothedProgressRef.current = smoothScrubProgress({
+    current: smoothedProgressRef.current,
+    target: clampedTarget,
+    elapsedMs,
+    sequence,
+  })
+
+  return smoothedProgressRef.current
 }
 
 function drawCover(
@@ -72,4 +128,8 @@ function drawCover(
   const y = (height - scaledHeight) / 2
 
   context.drawImage(image, x, y, scaledWidth, scaledHeight)
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value))
 }

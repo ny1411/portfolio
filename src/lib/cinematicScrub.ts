@@ -28,21 +28,23 @@ export function smoothScrubProgress({
   sequence: SequenceConfig
 }): number {
   const frameCount = Math.max(1, getFrameCount(sequence))
-  const smoothing = sequence.smoothing ?? 0.075
-  const maxFrameStep = sequence.maxFrameStep ?? 0.85
-  const normalizedElapsed = Math.max(0.5, Math.min(2.5, elapsedMs / 16.67))
-  const damping = 1 - Math.pow(1 - smoothing, normalizedElapsed)
-  const easedTarget = cinematicEase(target)
-  const next = current + (easedTarget - current) * damping
-  const maxProgressStep = maxFrameStep / Math.max(1, frameCount - 1)
+  const clampedCurrent = clamp(current, 0, 1)
+  const clampedTarget = clamp(target, 0, 1)
+  const smoothing = clamp(sequence.smoothing ?? 0.12, 0.01, 0.45)
+  const maxFrameStep = sequence.maxFrameStep ?? 1.35
+  const normalizedElapsed = Math.max(0.5, Math.min(3, elapsedMs / 16.67))
+  const distanceFrames = Math.abs(clampedTarget - clampedCurrent) * Math.max(1, frameCount - 1)
+  const catchUpBoost = clamp((distanceFrames - 1) / 28, 0, 1) * 0.14
+  const damping = clamp(1 - Math.pow(1 - smoothing - catchUpBoost, normalizedElapsed), 0, 0.42)
+  const next = clampedCurrent + (clampedTarget - clampedCurrent) * damping
+  const maxProgressStep = (maxFrameStep * normalizedElapsed) / Math.max(1, frameCount - 1)
+  const delta = clamp(next - clampedCurrent, -maxProgressStep, maxProgressStep)
 
-  return clamp(current + clamp(next - current, -maxProgressStep, maxProgressStep), 0, 1)
-}
+  if (Math.abs(clampedTarget - clampedCurrent) <= maxProgressStep * 0.5) {
+    return clampedTarget
+  }
 
-function cinematicEase(progress: number): number {
-  const clamped = clamp(progress, 0, 1)
-
-  return clamped * clamped * (3 - 2 * clamped)
+  return clamp(clampedCurrent + delta, 0, 1)
 }
 
 function clamp(value: number, min: number, max: number): number {
