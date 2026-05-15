@@ -2,13 +2,6 @@ import { resumeContent } from './resumeContent'
 import type { CinematicCardModel, CinematicTextScene } from '../types/cinematic'
 
 const overviewPage = resumeContent.resumePages.find((page) => page.id === 'overview')
-const profilePage = resumeContent.resumePages.find((page) => page.id === 'profile-focus')
-const technicalPage = resumeContent.resumePages.find((page) => page.id === 'technical-range')
-const contactPage = resumeContent.resumePages.find((page) => page.id === 'contact')
-
-const contactLines = contactPage?.body ?? []
-const emailLine = contactLines.find((line) => line.startsWith('Email:'))
-const contactEmail = emailLine?.replace('Email:', '').trim() ?? 'neerajyamaji@gmail.com'
 
 const skillGroupLabels: Record<keyof typeof resumeContent.skillsAndStack, string> = {
   languages: 'Languages',
@@ -71,13 +64,13 @@ const heroCards: CinematicCardModel[] = [
 const aboutCards: CinematicCardModel[] = [
   {
     id: 'about-craft',
-    show: 0.08,
+    show: 0.03,
     hide: 0.42,
     label: 'About',
-    title: 'Built for motion, clarity, and craft.',
-    body: profilePage?.summary ?? profilePage?.subtitle,
-    speaker: 'Design system',
-    meta: 'Signal',
+    title: 'Frontend developer for clean product UI.',
+    body: 'I build responsive React and TypeScript interfaces that feel clear, fast, and easy to use.',
+    speaker: 'Frontend developer',
+    meta: 'React / TypeScript',
     align: 'stage-right',
     animation: 'stack',
     tone: 'neutral',
@@ -86,11 +79,11 @@ const aboutCards: CinematicCardModel[] = [
     id: 'about-method',
     show: 0.46,
     hide: 0.82,
-    label: 'Method',
-    title: 'Interfaces that stay readable while the scene moves.',
-    body: 'Dense information gets anchored in cards while the camera and frame sequence carry the atmosphere.',
-    speaker: 'Layout weight',
-    meta: 'Balanced',
+    label: 'Focus',
+    title: 'Dashboards, AI tools, and interaction details.',
+    body: 'My work varies from Education ERP dashboards, MapBox Location Tracking, Repository Analyzer, and Github-based dating app.',
+    speaker: 'Product UI',
+    meta: 'Dashboards / AI tools',
     align: 'stage-left',
     animation: 'stack',
     tone: 'neutral',
@@ -138,7 +131,6 @@ const skillCards: CinematicCardModel[] = [
     hide: 0.92,
     label: 'Tools',
     title: 'A practical stack for polished web products.',
-    body: 'Frontend craft leads the system, backed by API, data, cloud, and AI tooling for complete product workflows.',
     speaker: `${skillGroups.length} grouped capabilities`,
     meta: 'Stack',
     align: 'stage-left',
@@ -161,36 +153,7 @@ const skillCards: CinematicCardModel[] = [
   })),
 ]
 
-const contactCards: CinematicCardModel[] = [
-  {
-    id: 'contact-pulse',
-    show: 0.08,
-    hide: 0.48,
-    label: 'Contact',
-    title: "Let's build something with a pulse.",
-    body: 'The final scene keeps the call to action readable while the sequence resolves.',
-    speaker: 'Open channel',
-    meta: 'Final',
-    align: 'center',
-    animation: 'cta',
-    tone: 'contact',
-  },
-  {
-    id: 'contact-email',
-    show: 0.52,
-    hide: 0.94,
-    label: 'Direct signal',
-    title: contactEmail,
-    body: technicalPage?.subtitle ?? 'Available for polished interfaces, cinematic product surfaces, and production-grade React work.',
-    speaker: 'Email',
-    meta: 'Ready',
-    href: `mailto:${contactEmail}`,
-    cta: 'Start a conversation',
-    align: 'bottom',
-    animation: 'cta',
-    tone: 'contact',
-  },
-]
+const contactCards: CinematicCardModel[] = []
 
 export const CINEMATIC_TEXT_SCENES: Record<string, CinematicTextScene> = {
   hero: {

@@ -8,17 +8,12 @@ export const resumeContent = {
 		},
 		{
 			id: 'profile-focus',
-			title: 'Frontend Engineering Focus',
+			title: 'About',
 			subtitle:
-				'React, TypeScript, Tailwind CSS, responsive UI, and real-time product interfaces.',
+				'Frontend developer building polished, responsive web products with React, TypeScript, and practical AI integrations.',
 			summary:
-				'Builds clean web experiences with strong attention to interaction, dashboard usability, and browser-compatible implementation.',
-			highlights: [
-				'ReactJS',
-				'TypeScript',
-				'Tailwind CSS',
-				'Responsive Design',
-			],
+				'I like turning product ideas into interfaces and systems that feel clear, fast, and usable. My work includes real-time dashboards, responsive websites, GitHub-powered matchmaking tools, and AI-assisted code analysis, with a focus on clean React architecture and thoughtful interaction details.',
+			highlights: ['ReactJS', 'TypeScript', 'Tailwind CSS', 'Product UI'],
 		},
 		{
 			id: 'technical-range',

@@ -50,7 +50,7 @@ export function CinematicSceneOverlay({ config, sceneId }: CinematicSceneOverlay
     }, 8)
   }, [cards, config, progressRef])
 
-  if (!config) return null
+  if (!config || cards.length === 0) return null
 
   return (
     <div
