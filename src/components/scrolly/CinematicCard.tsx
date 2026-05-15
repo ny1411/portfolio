@@ -21,6 +21,7 @@ export function CinematicCard({
   const tone = card.tone ?? 'neutral'
   const style = { '--card-order': String(index) } as CSSProperties
   const title = card.title ?? card.quote
+  const titleLines = title?.split('\n')
   const isExpandableCluster = card.animation === 'list' && card.tone === 'tool'
   const [expanded, setExpanded] = useState(false)
   const body = !isExpandableCluster && card.body ? <p>{card.body}</p> : null
@@ -72,7 +73,13 @@ export function CinematicCard({
         transition={{ duration: 0.2, ease: 'easeOut' }}
       >
         <span className="cinematic-card__label">{card.label}</span>
-        {title && <blockquote>{title}</blockquote>}
+        {titleLines && (
+          <blockquote>
+            {titleLines.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </blockquote>
+        )}
         {body}
         {tagList}
         {(card.speaker || card.meta || card.cta) && (
