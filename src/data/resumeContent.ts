@@ -1,36 +1,152 @@
 export const resumeContent = {
-  name: 'Neeraj',
-  title: 'Software Engineer',
-  summary:
-    'A cinematic portfolio foundation for experience, projects, skills, and contact moments.',
-  experience: [
-    {
-      role: 'Frontend Engineer',
-      company: 'Product Studio',
-      period: 'Recent',
-      description: 'Built polished React interfaces with a focus on performance and motion.',
-    },
-    {
-      role: 'Full Stack Developer',
-      company: 'Independent Projects',
-      period: 'Earlier',
-      description: 'Shipped production apps across API, UI, auth, and deployment surfaces.',
-    },
-  ],
-  projects: [
-    {
-      name: 'Scrollytelling Portfolio',
-      description: 'A scene-based portfolio engine with scroll-scrubbed visuals.',
-    },
-    {
-      name: 'Interactive Dashboards',
-      description: 'Dense, readable interfaces for data-heavy workflows.',
-    },
-  ],
-  skills: ['React', 'TypeScript', 'GSAP', 'Three.js', 'Node.js', 'Product Design'],
-  contact: {
-    email: 'hello@example.com',
-    github: 'https://github.com/',
-    linkedin: 'https://www.linkedin.com/',
-  },
-}
+	resumePages: [
+		{
+			id: 'overview',
+			title: 'Neeraj Yamaji',
+			subtitle:
+				'Frontend developer focused on React, TypeScript, responsive web experiences, and practical AI-powered developer tools.',
+		},
+		{
+			id: 'profile-focus',
+			title: 'Frontend Engineering Focus',
+			subtitle:
+				'React, TypeScript, Tailwind CSS, responsive UI, and real-time product interfaces.',
+			summary:
+				'Builds clean web experiences with strong attention to interaction, dashboard usability, and browser-compatible implementation.',
+			highlights: [
+				'ReactJS',
+				'TypeScript',
+				'Tailwind CSS',
+				'Responsive Design',
+			],
+		},
+		{
+			id: 'technical-range',
+			title: 'Full-Stack Range',
+			subtitle:
+				'Comfortable connecting frontend interfaces with APIs, databases, cloud tools, and AI services.',
+			summary:
+				'Project work spans Flask, Node.js, Express.js, Firebase, transformer models, Gemini, and matching/recommendation logic.',
+			highlights: ['Node.js', 'Express.js', 'Flask', 'Firebase', 'Gemini'],
+		},
+		{
+			id: 'contact',
+			title: 'Contact',
+			subtitle: '',
+			body: [
+				'Email: neerajyamaji@gmail.com',
+				'LinkedIn: https://linkedin.com/in/neeraj-yamaji',
+				'Twitter: https://x.com/n_y_1411/',
+				'GitHub: https://github.com/ny1411',
+				'Phone: +91-9021017715',
+				'WhatsApp: https://wa.me/919021017715',
+				'Location: Pune, MH',
+			],
+			highlights: ['Email', 'LinkedIn', 'GitHub', 'Phone'],
+		},
+	],
+	workExperiences: [
+		{
+			title: 'Frontend Developer Intern at Yahweh Software Solutions',
+			subtitle: 'Remote, Bengaluru, KA, May 2025 - Sept 2025',
+			body: [
+				'Architected and developed real-time dashboards across multiple modules of an Education ERP.',
+				'Developed a Bus Tracking System to provide real-time location updates using MapBoxGL.',
+			],
+			link: 'https://drive.google.com/file/d/1b5qlTdBPUsItcsR__OkyJDukrNN78U7p/view?usp=sharing',
+			tags: ['Frontend Development', 'Education ERP', 'Dashboards', 'MapBoxGL'],
+		},
+		{
+			title: 'Web Developer Intern at Kaizen Softservices',
+			subtitle: 'Pune, MH, Jan 2025 - Feb 2025',
+			body: [
+				'Developed a comprehensive multi-page website using HTML5, CSS3, and JavaScript.',
+				'Integrated interactive JavaScript features including form validation, search/filtering, pagination, and dynamic content loading.',
+			],
+			link: 'https://drive.google.com/file/d/1wxjprxRy5IHJs8iBYombCEBykI_BvIUJ/view?usp=sharing',
+			tags: ['HTML5', 'CSS3', 'JavaScript', 'Responsive Design'],
+		},
+	],
+	projectItems: [
+		{
+			title: 'Repolyse',
+			stack: ['ReactJS', 'Tailwind CSS', 'Flask', 'Python', 'Gemini'],
+			body: [
+				"Engineered a Flask REST API that analyses GitHub repositories using Google's Gemini and 4 transformer models: CodeBERT, RoBERTa, DistilBERT, and T5.",
+				'Implemented intelligent security scanning that detects vulnerabilities through keyword analysis and ML-based classification with a 10-point scoring system.',
+			],
+			links: [
+				{ label: 'Source code', href: 'https://github.com/ny1411/repolyse' },
+				{ label: 'Live demo', href: 'https://repolyse.vercel.app/' },
+			],
+		},
+		{
+			title: 'GitMatch',
+			stack: ['ReactJS', 'Node.js', 'Express.js', 'Firebase'],
+			body: [
+				'Built a Tinder-style dating web application with interactive swipe gestures and dynamic card transitions using Motion animation library.',
+				'Architected and implemented a scalable real-time matching algorithm with a 65/35 weighted scoring system that analyzes GitHub profiles, tech stacks, and compatibility factors.',
+			],
+			links: [
+				{ label: 'Source code', href: 'https://github.com/ny1411/git-match' },
+			],
+		},
+	],
+	extracurricularExperiences: [
+		{
+			title: 'Hacktoberfest',
+			subtitle: 'Open-Source Contribution, Remote, Oct 2025',
+			link: 'https://www.holopin.io/@ny1411',
+			tags: ['Open Source', '6 Accepted PRs', 'Features', 'Bug Fixes'],
+		},
+		{
+			title: 'Smart India Hackathon',
+			subtitle: 'Hackathon, Sept 2025',
+			link: 'https://youtu.be/6J57p__akaA',
+			tags: ['Team Leadership', 'Institute Rank 2', 'Hackathon'],
+		},
+		{
+			title: 'Courses & Hackathon Certifications',
+			subtitle: 'Selected certification folder from resume',
+			link: 'https://drive.google.com/drive/folders/1Rcdef31gItuSz6HHmgi7xpneBRTOkXB4?usp=sharing',
+			tags: ['Courses', 'Hackathons', 'Certifications'],
+		},
+	],
+	educationDetails: {
+		institution: "TSSM's BSCOER",
+		degree: "Bachelor's of Engineering",
+		period: 'July 2022 - June 2026',
+		grade: 'Pune, MH',
+		focus: 'Engineering undergraduate program.',
+	},
+	skillsAndStack: {
+		languages: [
+			'JavaScript',
+			'TypeScript',
+			'Java',
+			'PHP',
+			'HTML',
+			'CSS',
+			'Python',
+		],
+		frontend: [
+			'ReactJS',
+			'Tailwind CSS',
+			'Next.js',
+			'Bootstrap',
+			'HTML5',
+			'CSS3',
+			'Responsive Design',
+			'Cross-Browser Compatibility',
+		],
+		backendApis: ['Node.js', 'Express.js', 'FastAPI', 'Flask', 'REST APIs'],
+		cloudDatabases: [
+			'Firebase',
+			'MySQL',
+			'Supabase',
+			'MongoDB',
+			'Google Cloud',
+		],
+		developerTools: ['VS Code', 'Git', 'NodeJS', 'Collab', 'Jenkins'],
+	},
+} as const;

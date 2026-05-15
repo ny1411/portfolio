@@ -1,6 +1,39 @@
 import { resumeContent } from './resumeContent'
 import type { CinematicCardModel, CinematicTextScene } from '../types/cinematic'
 
+const overviewPage = resumeContent.resumePages.find((page) => page.id === 'overview')
+const profilePage = resumeContent.resumePages.find((page) => page.id === 'profile-focus')
+const technicalPage = resumeContent.resumePages.find((page) => page.id === 'technical-range')
+const contactPage = resumeContent.resumePages.find((page) => page.id === 'contact')
+
+const contactLines = contactPage?.body ?? []
+const emailLine = contactLines.find((line) => line.startsWith('Email:'))
+const contactEmail = emailLine?.replace('Email:', '').trim() ?? 'neerajyamaji@gmail.com'
+
+const skillGroupLabels: Record<keyof typeof resumeContent.skillsAndStack, string> = {
+  languages: 'Languages',
+  frontend: 'Frontend UI',
+  backendApis: 'Backend + APIs',
+  cloudDatabases: 'Cloud + Data',
+  developerTools: 'Developer Tools',
+}
+
+const skillGroupDescriptions: Record<keyof typeof resumeContent.skillsAndStack, string> = {
+  languages: 'Core languages used across interfaces, APIs, scripts, and web fundamentals.',
+  frontend: 'Responsive product interfaces with React, styling systems, browser compatibility, and modern app routing.',
+  backendApis: 'Service layers, REST endpoints, and lightweight API backends for product workflows.',
+  cloudDatabases: 'Hosted data, authentication, cloud services, and persistence for connected apps.',
+  developerTools: 'Daily tooling for source control, editors, automation, and collaborative delivery.',
+}
+
+const skillGroups = Object.entries(resumeContent.skillsAndStack).map(([key, skills]) => ({
+  id: key,
+  title: skillGroupLabels[key as keyof typeof resumeContent.skillsAndStack],
+  description: skillGroupDescriptions[key as keyof typeof resumeContent.skillsAndStack],
+  skills: [...skills],
+}))
+const skillStep = skillGroups.length > 1 ? 0.64 / (skillGroups.length - 1) : 0
+
 const heroCards: CinematicCardModel[] = [
   {
     id: 'hero-power',
@@ -33,8 +66,8 @@ const heroCards: CinematicCardModel[] = [
     show: 0.5,
     hide: 0.78,
     label: 'Cinematic Portfolio',
-    title: resumeContent.name,
-    body: resumeContent.title,
+    title: overviewPage?.title ?? 'Neeraj Yamaji',
+    body: overviewPage?.subtitle,
     speaker: 'Neeraj',
     meta: 'Portfolio',
     align: 'hero-left',
@@ -63,7 +96,7 @@ const aboutCards: CinematicCardModel[] = [
     hide: 0.42,
     label: 'About',
     title: 'Built for motion, clarity, and craft.',
-    body: resumeContent.summary,
+    body: profilePage?.summary ?? profilePage?.subtitle,
     speaker: 'Design system',
     meta: 'Signal',
     align: 'stage-right',
@@ -85,29 +118,35 @@ const aboutCards: CinematicCardModel[] = [
   },
 ]
 
-const experienceCards: CinematicCardModel[] = resumeContent.experience.map((item, index) => ({
+const experienceCards: CinematicCardModel[] = resumeContent.workExperiences.map((item, index) => ({
   id: `experience-${index}`,
   show: index === 0 ? 0.12 : 0.52,
   hide: index === 0 ? 0.46 : 0.86,
-  label: item.period,
-  title: item.role,
-  body: item.description,
-  speaker: item.company,
+  label: item.subtitle,
+  title: item.title,
+  body: item.body.join(' '),
+  speaker: 'Experience',
   meta: 'Experience',
+  tags: [...item.tags],
+  href: item.link,
+  cta: 'View certificate',
   align: index % 2 === 0 ? 'stage-right' : 'stage-left',
   animation: 'stack',
   tone: 'experience',
 }))
 
-const projectCards: CinematicCardModel[] = resumeContent.projects.map((project, index) => ({
+const projectCards: CinematicCardModel[] = resumeContent.projectItems.map((project, index) => ({
   id: `project-${index}`,
   show: index === 0 ? 0.1 : 0.5,
   hide: index === 0 ? 0.44 : 0.84,
   label: `Project 0${index + 1}`,
-  title: project.name,
-  body: project.description,
+  title: project.title,
+  body: project.body.join(' '),
   speaker: 'Portfolio case',
-  meta: index === 0 ? 'Scrollytelling' : 'Product UI',
+  meta: project.stack.slice(0, 3).join(' / '),
+  tags: [...project.stack],
+  href: project.links[0]?.href,
+  cta: project.links[0]?.label,
   align: index % 2 === 0 ? 'stage-left' : 'stage-right',
   animation: 'stack',
   tone: 'project',
@@ -119,20 +158,22 @@ const skillCards: CinematicCardModel[] = [
     show: 0.04,
     hide: 0.92,
     label: 'Tools',
-    title: 'Production tools, revealed one signal at a time.',
-    body: 'Each skill slides into the right rail from the same scene progress value.',
-    speaker: 'Skill rail',
-    meta: 'Live',
+    title: 'A practical stack for polished web products.',
+    body: 'Frontend craft leads the system, backed by API, data, cloud, and AI tooling for complete product workflows.',
+    speaker: `${skillGroups.length} grouped capabilities`,
+    meta: 'Stack',
     align: 'stage-left',
     animation: 'stack',
     tone: 'tool',
   },
-  ...resumeContent.skills.map((skill, index) => ({
-    id: `skill-${skill.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-    show: 0.14 + index * 0.1,
+  ...skillGroups.map((group, index) => ({
+    id: `skill-${group.id}`,
+    show: 0.14 + index * skillStep,
     hide: 0.98,
-    label: `Tool ${String(index + 1).padStart(2, '0')}`,
-    title: skill,
+    label: `Cluster ${String(index + 1).padStart(2, '0')}`,
+    title: group.title,
+    body: group.description,
+    tags: group.skills,
     speaker: 'Stack',
     meta: 'Ready',
     align: 'list' as const,
@@ -161,11 +202,11 @@ const contactCards: CinematicCardModel[] = [
     show: 0.52,
     hide: 0.94,
     label: 'Direct signal',
-    title: resumeContent.contact.email,
-    body: 'Available for polished interfaces, cinematic product surfaces, and production-grade React work.',
+    title: contactEmail,
+    body: technicalPage?.subtitle ?? 'Available for polished interfaces, cinematic product surfaces, and production-grade React work.',
     speaker: 'Email',
     meta: 'Ready',
-    href: `mailto:${resumeContent.contact.email}`,
+    href: `mailto:${contactEmail}`,
     cta: 'Start a conversation',
     align: 'bottom',
     animation: 'cta',
