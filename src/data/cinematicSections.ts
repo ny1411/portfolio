@@ -18,18 +18,9 @@ const skillGroupLabels: Record<keyof typeof resumeContent.skillsAndStack, string
   developerTools: 'Developer Tools',
 }
 
-const skillGroupDescriptions: Record<keyof typeof resumeContent.skillsAndStack, string> = {
-  languages: 'Core languages used across interfaces, APIs, scripts, and web fundamentals.',
-  frontend: 'Responsive product interfaces with React, styling systems, browser compatibility, and modern app routing.',
-  backendApis: 'Service layers, REST endpoints, and lightweight API backends for product workflows.',
-  cloudDatabases: 'Hosted data, authentication, cloud services, and persistence for connected apps.',
-  developerTools: 'Daily tooling for source control, editors, automation, and collaborative delivery.',
-}
-
 const skillGroups = Object.entries(resumeContent.skillsAndStack).map(([key, skills]) => ({
   id: key,
   title: skillGroupLabels[key as keyof typeof resumeContent.skillsAndStack],
-  description: skillGroupDescriptions[key as keyof typeof resumeContent.skillsAndStack],
   skills: [...skills],
 }))
 const skillStep = skillGroups.length > 1 ? 0.64 / (skillGroups.length - 1) : 0
@@ -160,7 +151,6 @@ const skillCards: CinematicCardModel[] = [
     hide: 0.98,
     label: `Cluster ${String(index + 1).padStart(2, '0')}`,
     title: group.title,
-    body: group.description,
     tags: group.skills,
     speaker: 'Stack',
     meta: 'Ready',
