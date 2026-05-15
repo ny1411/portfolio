@@ -146,6 +146,31 @@ The core decision is to keep a single normalized progress value per scene as the
   - Styles the startup loader shell, centered 3D logo canvas, and WebGL fallback mark.
   - Removes the lower loading-line animation from the startup loader.
 
+### 8. Resume Content Mapping & Skills Cluster Polish
+
+- [x] Updated `src/data/resumeContent.ts`
+  - Replaced placeholder resume data with structured overview, profile, experience, project, skill, education, extracurricular, and contact content.
+
+- [x] Updated `src/data/cinematicSections.ts`
+  - Mapped cinematic cards to the structured resume content shape.
+  - Grouped skills into named clusters with tags.
+  - Fixed undefined mapping paths after the resume content schema changed.
+
+- [x] Updated `src/components/scrolly/CinematicCard.tsx`
+  - Added Framer Motion hover/focus expansion for skill clusters.
+  - Reveals hidden skill chips without showing cluster descriptions.
+  - Keeps expanded clusters keyboard-focusable.
+
+- [x] Updated `src/styles/globals.css`
+  - Redesigned the skills scene layout for grouped clusters.
+  - Added equal cluster spacing across desktop, laptop, tablet, and mobile breakpoints.
+  - Prevents long skill chips from overflowing the visible cluster container.
+
+- [x] Updated scrolly frame smoothing internals
+  - Keeps progress smoothing inside `useImageSequence`.
+  - Draws reduced-motion frames immediately.
+  - Tunes scrub catch-up to reduce visible frame lag.
+
 ## Current Architecture
 
 ### Standard Scene Flow
@@ -231,6 +256,9 @@ Cards can overlap intentionally to create cinematic crossfades. The system does 
 - [x] Skills animate as a vertical list.
 - [x] List items fade and slide up.
 - [x] Layout is adjusted for mobile to avoid overlap.
+- [x] Skills are grouped into named clusters.
+- [x] Skill clusters use Framer Motion hover/focus expansion.
+- [x] Frontend UI and Developer Tools clusters reveal all chips without horizontal overflow.
 
 ### Contact
 
@@ -256,6 +284,9 @@ Cards can overlap intentionally to create cinematic crossfades. The system does 
 - [x] Confirmed green top progress line is gone.
 - [x] Confirmed skills list no longer overlaps on mobile.
 - [x] Confirmed 3D startup loader build/lint verification passes.
+- [x] Confirmed updated resume content maps without runtime `map` errors.
+- [x] Confirmed skills cluster responsiveness on laptop and tablet viewports with Playwright.
+- [x] Confirmed hovered skills clusters expand without showing cluster descriptions.
 
 ## Commit History
 
