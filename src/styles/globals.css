@@ -363,20 +363,20 @@ select {
 }
 
 .cinematic-card-shell--hero-left {
-  left: clamp(1.25rem, 7vw, 6rem);
-  top: clamp(7rem, 18vh, 10rem);
+  left: clamp(1.5rem, 3.2vw, 3rem);
+  top: clamp(24rem, 51vh, 29rem);
   width: min(46rem, calc(100vw - 2rem));
 }
 
 .cinematic-card-shell--hero-right {
-  right: clamp(1.25rem, 7vw, 6rem);
-  top: clamp(13rem, 34vh, 20rem);
-  width: min(39rem, calc(100vw - 2rem));
+  right: clamp(2.5rem, 4vw, 4rem);
+  top: clamp(6.5rem, 13vh, 8.5rem);
+  width: min(32rem, calc(100vw - 3rem));
 }
 
 .cinematic-card-shell--hero-bottom {
   bottom: clamp(5rem, 12vh, 7rem);
-  left: clamp(1.25rem, 7vw, 6rem);
+  right: clamp(1.5rem, 3.2vw, 3rem);
   width: min(34rem, calc(100vw - 2rem));
 }
 
@@ -538,6 +538,28 @@ select {
   --card-glow: rgba(239, 68, 68, 0.18);
 }
 
+.cinematic-section-cards--hero .cinematic-card {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  backdrop-filter: none;
+}
+
+.cinematic-section-cards--hero .cinematic-card__label {
+  color: #38bdf8;
+}
+
+.cinematic-card-shell--hero-right .cinematic-card__label {
+  display: block;
+  text-align: right;
+}
+
+.cinematic-card-shell--hero-bottom .cinematic-card__label {
+  display: block;
+  text-align: right;
+}
+
 .cinematic-card--experience {
   --card-bg: rgba(15, 23, 42, 0.72);
   --card-border: rgba(125, 211, 252, 0.24);
@@ -563,8 +585,23 @@ select {
 }
 
 .cinematic-card.cinematic-card--hero blockquote {
-  font-size: clamp(2.8rem, 7vw, 7rem);
-  line-height: 0.9;
+  font-size: clamp(3rem, 6.25vw, 6rem);
+  line-height: 0.95;
+}
+
+.cinematic-card blockquote span,
+.cinematic-beat-card blockquote span {
+  display: block;
+}
+
+.cinematic-card-shell--hero-right .cinematic-card.cinematic-card--hero blockquote {
+  font-size: clamp(2.4rem, 5vw, 5rem);
+}
+
+.cinematic-card-shell--hero-bottom .cinematic-card.cinematic-card--hero blockquote {
+  font-size: clamp(1.35rem, 2.4vw, 2.2rem);
+  line-height: 1;
+  text-align: right;
 }
 
 .cinematic-card--list {
@@ -843,6 +880,20 @@ select {
 
   .cinematic-card-shell--hero-bottom {
     bottom: max(5.25rem, calc(4.25rem + env(safe-area-inset-bottom)));
+  }
+
+  .cinematic-card-shell--hero-left {
+    left: 1.5rem;
+    right: 1.5rem;
+    top: auto;
+    bottom: max(10rem, calc(8.5rem + env(safe-area-inset-bottom)));
+  }
+
+  .cinematic-card-shell--hero-right {
+    left: 1.5rem;
+    right: 1.5rem;
+    top: 6.5rem;
+    bottom: auto;
   }
 
   .cinematic-card-shell--list {
