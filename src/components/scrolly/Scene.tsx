@@ -16,10 +16,13 @@ interface SceneProps {
   videoMountMode?: 'auto' | 'metadata' | 'none'
 }
 
+const MIN_PIN_DURATION_VH = 1600
+const SCROLL_VH_PER_VIDEO_SECOND = 60
+
 export function Scene({ config, children, index, onVideoReady, videoMountMode = 'none' }: SceneProps) {
   const sceneRef = useRef<HTMLElement>(null)
   const store = useScrollStore
-  const pinDuration = config.pinDuration ?? 900
+  const pinDuration = config.pinDuration ?? getVideoPinDuration(config.videoDuration)
 
   const pinnedOptions = useMemo(
     () => ({
@@ -64,4 +67,10 @@ export function Scene({ config, children, index, onVideoReady, videoMountMode = 
       <SceneOverlay overlays={config.overlays} />
     </section>
   )
+}
+
+function getVideoPinDuration(videoDuration?: number): number {
+  if (!videoDuration || videoDuration <= 0) return MIN_PIN_DURATION_VH
+
+  return Math.max(MIN_PIN_DURATION_VH, Math.round(videoDuration * SCROLL_VH_PER_VIDEO_SECOND))
 }

@@ -18,31 +18,37 @@ const scenes: SceneConfig[] = [
   {
     id: 'hero',
     label: 'Hero',
+    videoDuration: 11.887,
     videoSrc: '/videos/video1.mp4',
   },
   {
     id: 'about',
     label: 'About',
+    videoDuration: 3.587,
     videoSrc: '/videos/video2.mp4',
   },
   {
     id: 'experience',
     label: 'Experience',
+    videoDuration: 7.466,
     videoSrc: '/videos/video3.mp4',
   },
   {
     id: 'projects',
     label: 'Projects',
+    videoDuration: 6.798,
     videoSrc: '/videos/video4.mp4',
   },
   {
     id: 'skills',
     label: 'Skills',
+    videoDuration: 13.43,
     videoSrc: '/videos/video5.mp4',
   },
   {
     id: 'contact',
     label: 'Contact',
+    videoDuration: 5.631,
     videoSrc: '/videos/video6.mp4',
   },
 ]
@@ -118,9 +124,6 @@ export function ScrollyPage() {
   return (
     <main className={`scrolly-page ${startupReady ? 'is-ready' : 'is-loading'}`}>
       {!startupReady && <SpiderLogoLoader onModelReady={handleLogoModelReady} />}
-      <a className="skip-link" href="#about">
-        Skip to content
-      </a>
       {canMountScenes && (
         <>
           <SceneNav scenes={scenes} />
