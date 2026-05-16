@@ -5,6 +5,7 @@ export interface SceneConfig {
   label: string
   pinDuration?: number
   scrollRange?: [number, number]
+  videoDuration?: number
   videoSrc?: string
   timeline?: Record<string, unknown>
   overlays?: OverlayConfig[]
