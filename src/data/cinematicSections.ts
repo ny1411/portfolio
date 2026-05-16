@@ -53,7 +53,7 @@ const heroCards: CinematicCardModel[] = [
     id: 'hero-focus',
     show: 0.6,
     hide: 0.88,
-    label: 'Final frame',
+    label: 'Final beat',
     title: 'I build\nclean interfaces.',
     align: 'hero-right',
     animation: 'hero',

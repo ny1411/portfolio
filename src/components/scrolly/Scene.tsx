@@ -1,24 +1,25 @@
 import { useMemo, useRef, type ReactNode } from 'react'
 import { CINEMATIC_TEXT_SCENES } from '../../data/cinematicSections'
-import { getCinematicPinDuration } from '../../lib/cinematicScrub'
 import type { SceneConfig } from '../../types/scene'
 import { CinematicSceneOverlay } from './CinematicSceneOverlay'
 import { CinematicSceneHud } from './CinematicSceneHud'
-import { ImageSequenceCanvas } from './ImageSequenceCanvas'
 import { useScrollStore } from './scrollStore'
 import { SceneOverlay } from './SceneOverlay'
 import { usePinnedScene } from './usePinnedScene'
+import { VideoScrub } from './VideoScrub'
 
 interface SceneProps {
   config: SceneConfig
   children: ReactNode
   index: number
+  onVideoReady?: () => void
+  videoMountMode?: 'auto' | 'metadata' | 'none'
 }
 
-export function Scene({ config, children, index }: SceneProps) {
+export function Scene({ config, children, index, onVideoReady, videoMountMode = 'none' }: SceneProps) {
   const sceneRef = useRef<HTMLElement>(null)
   const store = useScrollStore
-  const pinDuration = config.pinDuration ?? getCinematicPinDuration(config.sequence)
+  const pinDuration = config.pinDuration ?? 900
 
   const pinnedOptions = useMemo(
     () => ({
@@ -43,7 +44,14 @@ export function Scene({ config, children, index }: SceneProps) {
 
   return (
     <section className="scrolly-scene" id={config.id} ref={sceneRef} aria-label={config.label}>
-      <ImageSequenceCanvas sceneId={config.id} sequence={config.sequence} />
+      {config.videoSrc && videoMountMode !== 'none' ? (
+        <VideoScrub
+          onReady={onVideoReady}
+          preload={videoMountMode}
+          sceneId={config.id}
+          src={config.videoSrc}
+        />
+      ) : null}
       {children}
       <CinematicSceneOverlay
         config={CINEMATIC_TEXT_SCENES[config.id]}
@@ -52,7 +60,6 @@ export function Scene({ config, children, index }: SceneProps) {
       <CinematicSceneHud
         label={config.label}
         sceneId={config.id}
-        sequence={config.sequence}
       />
       <SceneOverlay overlays={config.overlays} />
     </section>

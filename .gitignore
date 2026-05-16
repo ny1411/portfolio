@@ -15,8 +15,6 @@ dist-ssr
 .env.*.local
 .playwright-mcp/
 
-src/assets/frames
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

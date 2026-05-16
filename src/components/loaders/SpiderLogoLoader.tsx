@@ -8,16 +8,24 @@ import {
 	RepeatWrapping,
 	type Group,
 } from 'three';
-import spiderLogoUrl from '../../assets/3d-elements/spider_logo3d.glb?url';
+import { preloadSpiderLogoModel, spiderLogoUrl } from '../../lib/spiderLogoModel';
 
 interface SpiderLogoLoaderProps {
 	label?: string;
+	onModelReady?: () => void;
 }
 
 export function SpiderLogoLoader({
-	label = 'Loading frames',
+	label = 'Loading scene',
+	onModelReady,
 }: SpiderLogoLoaderProps) {
 	const canRender3d = useMemo(() => hasWebGL(), []);
+
+	useEffect(() => {
+		if (canRender3d) return;
+
+		onModelReady?.();
+	}, [canRender3d, onModelReady]);
 
 	return (
 		<div
@@ -26,33 +34,38 @@ export function SpiderLogoLoader({
 			aria-live="polite"
 			aria-label={label}
 		>
-			{canRender3d ? (
-				<Canvas
-					className="startup-loader__canvas"
-					camera={{ position: [0, 0, 50], fov: 50 }}
-				>
-					<ambientLight intensity={1.15} />
-					<pointLight intensity={3.2} position={[3, 4, 5]} />
-					<Suspense fallback={null}>
-						<Bounds fit clip observe margin={1.35}>
-							<Center>
-								<SpinningSpiderLogo />
-							</Center>
-						</Bounds>
-					</Suspense>
-				</Canvas>
-			) : (
-				<div className="startup-loader__mark" aria-hidden="true" />
-			)}
+			<div className="startup-loader__visual">
+				{canRender3d ? (
+					<Canvas
+						className="startup-loader__canvas"
+						camera={{ position: [0, 0, 50], fov: 50 }}
+					>
+						<ambientLight intensity={1.15} />
+						<pointLight intensity={3.2} position={[3, 4, 5]} />
+						<Suspense fallback={null}>
+							<Bounds fit clip observe margin={1.35}>
+								<Center>
+									<SpinningSpiderLogo onReady={onModelReady} />
+								</Center>
+							</Bounds>
+						</Suspense>
+					</Canvas>
+				) : (
+					<div className="startup-loader__fallback" aria-hidden="true" />
+				)}
+			</div>
 			<span className="startup-loader__label">{label}</span>
 		</div>
 	);
 }
 
-function SpinningSpiderLogo() {
+preloadSpiderLogoModel();
+useGLTF.preload(spiderLogoUrl);
+
+function SpinningSpiderLogo({ onReady }: { onReady?: () => void }) {
 	const groupRef = useRef<Group>(null);
 	const { scene } = useGLTF(spiderLogoUrl);
-	const { model, material, grainTexture } = useMemo(() => {
+	const model = useMemo(() => {
 		const grain = createNoiseTexture();
 		const spiderRed = new MeshPhysicalMaterial({
 			color: '#c1121f',
@@ -71,15 +84,12 @@ function SpinningSpiderLogo() {
 			if (child instanceof Mesh) child.material = spiderRed;
 		});
 
-		return { model: clonedScene, material: spiderRed, grainTexture: grain };
+		return clonedScene;
 	}, [scene]);
 
 	useEffect(() => {
-		return () => {
-			material.dispose();
-			grainTexture.dispose();
-		};
-	}, [grainTexture, material]);
+		onReady?.();
+	}, [onReady]);
 
 	useFrame((_, delta) => {
 		if (!groupRef.current) return;

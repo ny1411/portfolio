@@ -1,13 +1,10 @@
-import { useEffect, useMemo, useRef } from 'react'
-import { getFrameCount, getFrameIndex } from '../../lib/sequenceLoader'
+import { useEffect, useRef } from 'react'
 import { rafScheduler } from '../../lib/rafScheduler'
-import type { SequenceConfig } from '../../types/sequence'
 import { useSceneProgress } from './useSceneProgress'
 
 interface CinematicSceneHudProps {
   sceneId: string
   label: string
-  sequence?: SequenceConfig
   leftLabel?: string
   footerLeft?: string
   footerMiddle?: string
@@ -17,7 +14,6 @@ interface CinematicSceneHudProps {
 export function CinematicSceneHud({
   sceneId,
   label,
-  sequence,
   leftLabel,
   footerLeft,
   footerMiddle = 'Progress sync',
@@ -27,27 +23,20 @@ export function CinematicSceneHud({
   const progressFillRef = useRef<HTMLDivElement | null>(null)
   const seqReadoutRef = useRef<HTMLSpanElement | null>(null)
 
-  const totalFrames = useMemo(() => (sequence ? getFrameCount(sequence) : 100), [sequence])
-
   useEffect(() => {
     return rafScheduler.schedule(() => {
       const progress = progressRef.current
-      const sequenceNumber = sequence
-        ? getFrameIndex(sequence, progress) - sequence.startIndex + 1
-        : Math.round(progress * (totalFrames - 1)) + 1
+      const progressPercent = Math.round(progress * 100)
 
       if (progressFillRef.current) {
         progressFillRef.current.style.transform = `scaleX(${progress})`
       }
 
       if (seqReadoutRef.current) {
-        seqReadoutRef.current.textContent = `SEQ ${String(sequenceNumber).padStart(
-          3,
-          '0',
-        )} / ${totalFrames}`
+        seqReadoutRef.current.textContent = `VIDEO ${String(progressPercent).padStart(3, '0')}%`
       }
     }, 9)
-  }, [progressRef, sequence, totalFrames])
+  }, [progressRef])
 
   return (
     <>
@@ -56,7 +45,7 @@ export function CinematicSceneHud({
       </div>
       <div className="cinematic-scene-hud cinematic-scene-hud--top-right">
         <span className="cinematic-scene-hud__readout" ref={seqReadoutRef}>
-          SEQ 001 / {totalFrames}
+          VIDEO 000%
         </span>
       </div>
 
@@ -65,7 +54,7 @@ export function CinematicSceneHud({
       </div>
 
       <div className="cinematic-scene-footer" aria-hidden="true">
-        <span>{footerLeft ?? `${label} frames nominal`}</span>
+        <span>{footerLeft ?? `${label} video scrub`}</span>
         <span>{footerMiddle}</span>
         <span>{footerRight}</span>
       </div>

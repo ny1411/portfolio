@@ -1,12 +1,11 @@
 import type { ReactNode } from 'react'
-import type { SequenceConfig } from './sequence'
 
 export interface SceneConfig {
   id: string
   label: string
   pinDuration?: number
   scrollRange?: [number, number]
-  sequence?: SequenceConfig
+  videoSrc?: string
   timeline?: Record<string, unknown>
   overlays?: OverlayConfig[]
   parallaxLayers?: ParallaxLayer[]

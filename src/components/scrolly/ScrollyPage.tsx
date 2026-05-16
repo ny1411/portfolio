@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ScrollTrigger } from '../../lib/gsap'
-import { preloadSequenceFrameRange } from '../../lib/sequenceLoader'
+import { preloadSpiderLogoModel } from '../../lib/spiderLogoModel'
 import type { SceneConfig } from '../../types/scene'
 import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
 import { AboutSection } from '../sections/AboutSection'
@@ -18,74 +18,32 @@ const scenes: SceneConfig[] = [
   {
     id: 'hero',
     label: 'Hero',
-    sequence: {
-      folder: 'video1',
-      prefix: 'video',
-      startIndex: 10178,
-      endIndex: 10579,
-      preloadStrategy: 'viewport',
-      preloadRadius: 18,
-    },
+    videoSrc: '/videos/video1.mp4',
   },
   {
     id: 'about',
     label: 'About',
-    sequence: {
-      folder: 'video2',
-      prefix: 'video',
-      startIndex: 2000,
-      endIndex: 2106,
-      preloadStrategy: 'viewport',
-      preloadRadius: 14,
-    },
+    videoSrc: '/videos/video2.mp4',
   },
   {
     id: 'experience',
     label: 'Experience',
-    sequence: {
-      folder: 'video3',
-      prefix: 'video',
-      startIndex: 3000,
-      endIndex: 3151,
-      preloadStrategy: 'viewport',
-      preloadRadius: 16,
-    },
+    videoSrc: '/videos/video3.mp4',
   },
   {
     id: 'projects',
     label: 'Projects',
-    sequence: {
-      folder: 'video4',
-      prefix: 'video',
-      startIndex: 4000,
-      endIndex: 4202,
-      preloadStrategy: 'viewport',
-      preloadRadius: 20,
-    },
+    videoSrc: '/videos/video4.mp4',
   },
   {
     id: 'skills',
     label: 'Skills',
-    sequence: {
-      folder: 'video5',
-      prefix: 'video',
-      startIndex: 5000,
-      endIndex: 5303,
-      preloadStrategy: 'viewport',
-      preloadRadius: 18,
-    },
+    videoSrc: '/videos/video5.mp4',
   },
   {
     id: 'contact',
     label: 'Contact',
-    sequence: {
-      folder: 'video6',
-      prefix: 'video',
-      startIndex: 6000,
-      endIndex: 6296,
-      preloadStrategy: 'viewport',
-      preloadRadius: 18,
-    },
+    videoSrc: '/videos/video6.mp4',
   },
 ]
 
@@ -99,28 +57,44 @@ const sceneContent = [
 ]
 
 const MIN_STARTUP_LOADER_MS = 3000
+const MIN_LOGO_VISIBLE_MS = 1800
+const MAX_STARTUP_LOADER_MS = 8000
 
 export function ScrollyPage() {
-  const [startupReady, setStartupReady] = useState(false)
+  const [minimumLoaderElapsed, setMinimumLoaderElapsed] = useState(false)
+  const [logoVisibleElapsed, setLogoVisibleElapsed] = useState(false)
+  const [logoModelReady, setLogoModelReady] = useState(false)
+  const [heroVideoReady, setHeroVideoReady] = useState(false)
+  const [forceStartupReady, setForceStartupReady] = useState(false)
+  const activeSceneIndex = useScrollStore((state) => state.activeSceneIndex)
+  const scrollDirection = useScrollStore((state) => state.direction)
+  const canMountScenes = logoModelReady || forceStartupReady
+  const startupReady =
+    forceStartupReady || (minimumLoaderElapsed && logoVisibleElapsed && logoModelReady && heroVideoReady)
+  const handleHeroVideoReady = useCallback(() => setHeroVideoReady(true), [])
+  const handleLogoModelReady = useCallback(() => setLogoModelReady(true), [])
 
   useScrollSync()
 
   useEffect(() => {
-    const controller = new AbortController()
-    const heroSequence = scenes[0].sequence
-    const minimumDelay = new Promise((resolve) => {
-      window.setTimeout(resolve, MIN_STARTUP_LOADER_MS)
-    })
-    const framePreload = heroSequence
-      ? preloadSequenceFrameRange(scenes[0].id, heroSequence, controller.signal)
-      : Promise.resolve()
+    preloadSpiderLogoModel()
 
-    void Promise.all([minimumDelay, framePreload.catch(() => undefined)]).then(() => {
-      if (!controller.signal.aborted) setStartupReady(true)
-    })
+    const minimumTimer = window.setTimeout(() => setMinimumLoaderElapsed(true), MIN_STARTUP_LOADER_MS)
+    const maximumTimer = window.setTimeout(() => setForceStartupReady(true), MAX_STARTUP_LOADER_MS)
 
-    return () => controller.abort()
+    return () => {
+      window.clearTimeout(minimumTimer)
+      window.clearTimeout(maximumTimer)
+    }
   }, [])
+
+  useEffect(() => {
+    if (!logoModelReady) return
+
+    const visibleTimer = window.setTimeout(() => setLogoVisibleElapsed(true), MIN_LOGO_VISIBLE_MS)
+
+    return () => window.clearTimeout(visibleTimer)
+  }, [logoModelReady])
 
   useEffect(() => {
     const updateGlobalProgress = () => {
@@ -143,16 +117,37 @@ export function ScrollyPage() {
 
   return (
     <main className={`scrolly-page ${startupReady ? 'is-ready' : 'is-loading'}`}>
-      {!startupReady && <SpiderLogoLoader />}
+      {!startupReady && <SpiderLogoLoader onModelReady={handleLogoModelReady} />}
       <a className="skip-link" href="#about">
         Skip to content
       </a>
-      <SceneNav scenes={scenes} />
-      {scenes.map((scene, index) => (
-        <Scene config={scene} index={index} key={scene.id}>
-          {sceneContent[index]}
-        </Scene>
-      ))}
+      {canMountScenes && (
+        <>
+          <SceneNav scenes={scenes} />
+          {scenes.map((scene, index) => (
+            <Scene
+              config={scene}
+              index={index}
+              key={scene.id}
+              onVideoReady={index === 0 ? handleHeroVideoReady : undefined}
+              videoMountMode={getVideoMountMode(index, activeSceneIndex, scrollDirection)}
+            >
+              {sceneContent[index]}
+            </Scene>
+          ))}
+        </>
+      )}
     </main>
   )
+}
+
+function getVideoMountMode(
+  sceneIndex: number,
+  activeSceneIndex: number,
+  direction: 'up' | 'down',
+): 'auto' | 'metadata' | 'none' {
+  if (sceneIndex === activeSceneIndex) return 'auto'
+
+  const warmSceneIndex = activeSceneIndex + (direction === 'up' ? -1 : 1)
+  return sceneIndex === warmSceneIndex ? 'metadata' : 'none'
 }
