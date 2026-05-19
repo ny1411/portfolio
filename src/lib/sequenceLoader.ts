@@ -16,7 +16,8 @@ export function getFrameIndex(sequence: SequenceConfig, progress: number): numbe
 
 export function getFrameSrc(sequence: SequenceConfig, index: number): string {
   const extension = sequence.extension ?? 'jpg'
-  const filename = `${sequence.prefix}${String(index).padStart(4, '0')}.${extension}`
+  const padLength = sequence.padLength ?? 4
+  const filename = `${sequence.prefix}${String(index).padStart(padLength, '0')}.${extension}`
 
   return getBundledFrameUrl(sequence.folder, filename) ?? `/src/assets/frames/${sequence.folder}/${filename}`
 }
