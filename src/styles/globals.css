@@ -136,6 +136,215 @@ select {
   padding: 0;
 }
 
+.masking-parallax-scene {
+  --atmo-x: 0px;
+  --atmo-y: 0px;
+  --atmo-scale: 1.015;
+  --bg-x: 0px;
+  --bg-y: 0px;
+  --bg-scale: 1.04;
+  --frame-height: min(98vh, 54rem);
+  --frame-width: min(65.333vh, 36rem);
+  --frame-x: calc(50vw - var(--frame-width) / 2);
+  --frame-y: calc(50vh - var(--frame-height) / 2);
+  --mask-counter-x: 0px;
+  --mask-counter-y: 0px;
+  --mask-height: 74vh;
+  --mask-width: min(34vw, 42rem);
+  --mask-x: calc(50vw - min(17vw, 21rem));
+  --mask-y: 4vh;
+  --plate-origin-x: 50%;
+  --plate-origin-y: 34%;
+  --plate-scale: 1;
+  --plate-x: 0px;
+  --plate-y: 0px;
+  --reveal-opacity: 0.84;
+  --vignette-scale: 1;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #050508;
+  color: #f8fafc;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.masking-parallax-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 55% 38%, rgba(186, 92, 46, 0.24), transparent 25rem),
+    linear-gradient(180deg, #130f0f 0%, #090a0d 54%, #020305 100%);
+  animation: masking-hero-settle 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: center;
+}
+
+.masking-parallax-depth,
+.masking-parallax-plate,
+.masking-parallax-reveal-svg,
+.masking-parallax-shared-grade,
+.masking-parallax-vignette {
+  position: absolute;
+  pointer-events: none;
+}
+
+.masking-parallax-depth {
+  inset: -8%;
+}
+
+.masking-parallax-depth--backdrop {
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 32% 68%, rgba(198, 77, 31, 0.38), transparent 27rem),
+    radial-gradient(ellipse at 69% 22%, rgba(68, 126, 154, 0.26), transparent 24rem),
+    radial-gradient(ellipse at 52% 44%, rgba(246, 207, 155, 0.22), transparent 18rem),
+    linear-gradient(100deg, rgba(10, 8, 8, 0.8) 0%, rgba(32, 20, 18, 0.72) 36%, rgba(11, 13, 18, 0.8) 72%, #040508 100%),
+    url("../assets/images/portfolio portrait.png") center 38% / cover no-repeat;
+  filter: blur(16px) brightness(0.62) saturate(0.88);
+  opacity: 0.86;
+  transform: translate3d(var(--bg-x), var(--bg-y), 0) scale(var(--bg-scale));
+  will-change: transform;
+}
+
+.masking-parallax-depth--atmosphere {
+  z-index: 1;
+  inset: 0;
+  opacity: 0.46;
+  background:
+    linear-gradient(90deg, rgba(5, 5, 8, 0.74), transparent 22%, transparent 72%, rgba(5, 5, 8, 0.82)),
+    radial-gradient(ellipse at 54% 43%, rgba(255, 232, 192, 0.28), transparent 24rem),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 34px);
+  mix-blend-mode: soft-light;
+  transform: translate3d(var(--atmo-x), var(--atmo-y), 0) scale(var(--atmo-scale));
+  will-change: transform;
+}
+
+.masking-parallax-plate {
+  left: var(--frame-x);
+  top: var(--frame-y);
+  z-index: 2;
+  width: var(--frame-width);
+  height: var(--frame-height);
+  overflow: hidden;
+  transform: translate3d(var(--plate-x), var(--plate-y), 0) scale(var(--plate-scale));
+  transform-origin: var(--plate-origin-x) var(--plate-origin-y);
+  will-change: transform;
+}
+
+.masking-parallax-plate img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+.masking-parallax-plate--base img {
+  object-position: 50% 38%;
+  filter: brightness(0.82) contrast(1.04) saturate(0.92);
+}
+
+.masking-parallax-plate--base {
+  -webkit-mask-image: radial-gradient(ellipse at 50% 46%, #000 0 55%, rgba(0, 0, 0, 0.9) 70%, transparent 100%);
+  mask-image: radial-gradient(ellipse at 50% 46%, #000 0 55%, rgba(0, 0, 0, 0.9) 70%, transparent 100%);
+}
+
+.masking-parallax-plate--base::after {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 52% 34%, transparent 0 16rem, rgba(3, 5, 7, 0.2) 45rem),
+    linear-gradient(90deg, rgba(70, 24, 14, 0.22), transparent 32%, rgba(4, 8, 13, 0.28));
+  content: "";
+}
+
+.masking-parallax-reveal-svg {
+  inset: 0;
+  z-index: 3;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: var(--reveal-opacity);
+  contain: paint;
+  will-change: opacity;
+}
+
+.masking-parallax-reveal-layer {
+  pointer-events: none;
+  transform-box: view-box;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.masking-parallax-reveal-image {
+  filter: brightness(0.84) contrast(1.06) saturate(0.95);
+  pointer-events: none;
+  user-select: none;
+}
+
+.masking-parallax-reveal-grade {
+  fill: rgba(5, 8, 12, 0.26);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.masking-parallax-shared-grade {
+  inset: 0;
+  z-index: 4;
+  opacity: 0.74;
+  background:
+    linear-gradient(105deg, rgba(106, 32, 20, 0.36), transparent 34%, rgba(16, 53, 71, 0.28) 76%),
+    radial-gradient(ellipse at 54% 38%, rgba(245, 198, 139, 0.22), transparent 34rem),
+    linear-gradient(180deg, rgba(255, 244, 220, 0.08), transparent 42%, rgba(0, 0, 0, 0.34));
+  mix-blend-mode: soft-light;
+}
+
+.masking-parallax-vignette {
+  inset: 0;
+  z-index: 5;
+  background:
+    radial-gradient(ellipse at 54% 39%, transparent 0 20rem, rgba(2, 3, 5, 0.42) 56rem),
+    linear-gradient(90deg, rgba(1, 2, 4, 0.78), transparent 24%, transparent 72%, rgba(1, 2, 4, 0.82)),
+    linear-gradient(180deg, rgba(1, 2, 4, 0.32), transparent 21%, rgba(1, 2, 4, 0.66));
+  transform: scale(var(--vignette-scale));
+  will-change: transform;
+}
+
+@keyframes masking-hero-settle {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(1.025);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.masking-parallax-scene.is-reduced-motion .masking-parallax-stage {
+  animation: none;
+}
+
+.masking-parallax-scene.is-reduced-motion .masking-parallax-depth,
+.masking-parallax-scene.is-reduced-motion .masking-parallax-plate,
+.masking-parallax-scene.is-reduced-motion .masking-parallax-reveal-svg {
+  will-change: auto;
+}
+
+#masking-parallax .cinematic-scene-hud,
+#masking-parallax .cinematic-footer-loader,
+#masking-parallax .cinematic-scene-footer {
+  display: none;
+}
+
 .scene-layout--split {
   grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
   align-items: center;
@@ -701,7 +910,8 @@ select {
   --card-glow: rgba(239, 68, 68, 0.18);
 }
 
-.cinematic-section-cards--hero .cinematic-card {
+.cinematic-section-cards--hero .cinematic-card,
+.cinematic-section-cards--masking-parallax .cinematic-card {
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -709,7 +919,8 @@ select {
   backdrop-filter: none;
 }
 
-.cinematic-section-cards--hero .cinematic-card__label {
+.cinematic-section-cards--hero .cinematic-card__label,
+.cinematic-section-cards--masking-parallax .cinematic-card__label {
   color: #38bdf8;
 }
 

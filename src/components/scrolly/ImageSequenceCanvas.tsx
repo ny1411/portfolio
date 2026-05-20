@@ -32,5 +32,7 @@ export function ImageSequenceCanvas({ sceneId, sequence }: ImageSequenceCanvasPr
     }, 10)
   }, [draw, progressRef, reducedMotion, sequence])
 
+  if (!sequence) return null
+
   return <canvas ref={canvasRef} className="sequence-canvas" aria-hidden="true" />
 }

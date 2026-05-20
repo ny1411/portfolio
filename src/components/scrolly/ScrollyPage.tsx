@@ -7,6 +7,7 @@ import { AboutSection } from '../sections/AboutSection'
 import { ContactSection } from '../sections/ContactSection'
 import { ExperienceSection } from '../sections/ExperienceSection'
 import { HeroSection } from '../sections/HeroSection'
+import { MaskingParallaxSection } from '../sections/MaskingParallaxSection'
 import { ProjectsSection } from '../sections/ProjectsSection'
 import { SkillsSection } from '../sections/SkillsSection'
 import { Scene } from './Scene'
@@ -27,6 +28,11 @@ const scenes: SceneConfig[] = [
       preloadStrategy: 'viewport',
       preloadRadius: 18,
     },
+  },
+  {
+    id: 'masking-parallax',
+    label: 'Masking',
+    pinDuration: 420,
   },
   {
     id: 'about',
@@ -98,6 +104,7 @@ const scenes: SceneConfig[] = [
 
 const sceneContent = [
   <HeroSection />,
+  <MaskingParallaxSection />,
   <AboutSection />,
   <ExperienceSection />,
   <ProjectsSection />,
@@ -114,12 +121,12 @@ export function ScrollyPage() {
 
   useEffect(() => {
     const controller = new AbortController()
-    const heroSequence = scenes[0].sequence
+    const firstSequenceScene = scenes.find((scene) => scene.sequence)
     const minimumDelay = new Promise((resolve) => {
       window.setTimeout(resolve, MIN_STARTUP_LOADER_MS)
     })
-    const framePreload = heroSequence
-      ? preloadSequenceFrameRange(scenes[0].id, heroSequence, controller.signal)
+    const framePreload = firstSequenceScene?.sequence
+      ? preloadSequenceFrameRange(firstSequenceScene.id, firstSequenceScene.sequence, controller.signal)
       : Promise.resolve()
 
     void Promise.all([minimumDelay, framePreload.catch(() => undefined)]).then(() => {
