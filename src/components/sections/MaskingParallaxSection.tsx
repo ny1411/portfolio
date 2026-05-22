@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import basePortraitUrl from '../../assets/images/portfolio portrait.png'
 import maskedPortraitUrl from '../../assets/images/spiderman portfolio portrait.png'
+import { getDeviceProfile } from '../../lib/performance'
 import { rafScheduler } from '../../lib/rafScheduler'
 import { useReducedMotion } from '../scrolly/useReducedMotion'
 import { useSceneProgress } from '../scrolly/useSceneProgress'
@@ -17,7 +18,7 @@ import {
 import { applyHeroVariables, getHeroGeometry } from './masking-parallax/geometry'
 import { clamp, damp, length } from './masking-parallax/math'
 import { createMotionState, updateMotionState } from './masking-parallax/motion'
-import { updateSvgReveal } from './masking-parallax/svgReveal'
+import { createSvgCache, updateSvgReveal, type SvgCache } from './masking-parallax/svgReveal'
 import type { MotionState, Point, ViewportSnapshot } from './masking-parallax/types'
 import { getCenteredPortraitFrame, getViewportSnapshot } from './masking-parallax/viewport'
 
@@ -28,7 +29,7 @@ export function MaskingParallaxSection() {
   const revealImageRef = useRef<SVGImageElement>(null)
   const blobCorePathRef = useRef<SVGPathElement>(null)
   const blobFeatherPathRef = useRef<SVGPathElement>(null)
-  const blobPointsRef = useRef<Point[] | null>(null)
+  const svgCacheRef = useRef<SvgCache>(createSvgCache())
   const viewportRef = useRef<ViewportSnapshot>(getViewportSnapshot())
   const pointerTargetRef = useRef<Point>({ x: 0, y: 0 })
   const pointerHoverTargetRef = useRef(false)
@@ -40,6 +41,10 @@ export function MaskingParallaxSection() {
   const progressMotionRef = useRef(0)
   const progressRef = useSceneProgress(SCENE_ID)
   const reducedMotion = useReducedMotion()
+  const isVisibleRef = useRef(true)
+
+  const profile = getDeviceProfile()
+  const featherStdDev = profile.tier === 'low' ? '1.5' : profile.isLowPower ? '2.5' : '4.5'
 
   useEffect(() => {
     const updateViewport = () => {
@@ -49,6 +54,17 @@ export function MaskingParallaxSection() {
     updateViewport()
     window.addEventListener('resize', updateViewport)
     return () => window.removeEventListener('resize', updateViewport)
+  }, [])
+
+  useEffect(() => {
+    const scene = sceneRef.current
+    if (!scene) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting },
+      { threshold: 0 }
+    )
+    observer.observe(scene)
+    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -143,6 +159,9 @@ export function MaskingParallaxSection() {
     if (!scene || !revealSvg || !revealLayer || !revealImage || !blobCorePath || !blobFeatherPath) return
 
     return rafScheduler.schedule((time) => {
+      const isActiveScene = progressRef.current > 0 && progressRef.current < 1
+      if (!isVisibleRef.current && !isActiveScene) return
+
       const viewport = viewportRef.current
       const interactionTarget =
         viewport.pointerFine && !viewport.mobile
@@ -194,20 +213,26 @@ export function MaskingParallaxSection() {
       })
 
       applyHeroVariables(scene, geometry.variables)
-      updateSvgReveal({
-        blobCorePath,
-        blobFeatherPath,
-        blobPointsRef,
-        geometry,
-        motion,
-        revealAmount: revealMotionRef.current,
-        revealLayer,
-        reducedMotion,
-        revealImage,
-        revealSvg,
-        time,
-        viewport,
-      })
+      
+      const revealSettled = revealMotionRef.current < 0.005
+      const motionSettled = hoverMotionRef.current < 0.01
+
+      if (!revealSettled || !motionSettled) {
+        updateSvgReveal({
+          blobCorePath,
+          blobFeatherPath,
+          svgCacheRef,
+          geometry,
+          motion,
+          revealAmount: revealMotionRef.current,
+          revealLayer,
+          reducedMotion,
+          revealImage,
+          revealSvg,
+          time,
+          viewport,
+        })
+      }
     }, 12)
   }, [progressRef, reducedMotion])
 
@@ -219,10 +244,14 @@ export function MaskingParallaxSection() {
     >
       <div className="masking-parallax-stage">
         <div className="masking-parallax-depth masking-parallax-depth--backdrop" aria-hidden="true" />
-        <div className="masking-parallax-depth masking-parallax-depth--atmosphere" aria-hidden="true" />
+        <div className="masking-parallax-depth--atmosphere-wrap" aria-hidden="true">
+          <div className="masking-parallax-depth masking-parallax-depth--atmosphere" />
+        </div>
 
-        <div className="masking-parallax-plate masking-parallax-plate--base" aria-hidden="true">
-          <img src={basePortraitUrl} alt="" decoding="async" draggable={false} />
+        <div className="masking-parallax-plate-mask" aria-hidden="true">
+          <div className="masking-parallax-plate masking-parallax-plate--base">
+            <img src={basePortraitUrl} alt="" decoding="async" draggable={false} />
+          </div>
         </div>
 
         <svg
@@ -233,7 +262,7 @@ export function MaskingParallaxSection() {
         >
           <defs>
             <filter id="masking-blob-feather" x="-28%" y="-28%" width="156%" height="156%">
-              <feGaussianBlur stdDeviation="4.5" />
+              <feGaussianBlur stdDeviation={featherStdDev} />
             </filter>
             <mask id="masking-blob-alpha" maskUnits="userSpaceOnUse">
               <path ref={blobFeatherPathRef} fill="#fff" opacity="0.38" filter="url(#masking-blob-feather)" />

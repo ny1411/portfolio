@@ -11,47 +11,45 @@ export function updateMotionState(
   const lastTime = motion.lastTime || time
   const deltaTime = clamp((time - lastTime) / 1000, 0.001, 0.05)
 
-  motion.raw = target
-  motion.previousSmooth = { ...motion.smooth }
-  motion.smooth = reducedMotion
-    ? { x: 0, y: 0 }
-    : {
-        x: damp(motion.smooth.x, motion.raw.x, POINTER_LERP),
-        y: damp(motion.smooth.y, motion.raw.y, POINTER_LERP),
-      }
-  motion.delta = {
-    x: motion.smooth.x - motion.previousSmooth.x,
-    y: motion.smooth.y - motion.previousSmooth.y,
+  motion.raw.x = target.x
+  motion.raw.y = target.y
+
+  motion.previousSmooth.x = motion.smooth.x
+  motion.previousSmooth.y = motion.smooth.y
+
+  if (reducedMotion) {
+    motion.smooth.x = 0
+    motion.smooth.y = 0
+  } else {
+    motion.smooth.x = damp(motion.smooth.x, motion.raw.x, POINTER_LERP)
+    motion.smooth.y = damp(motion.smooth.y, motion.raw.y, POINTER_LERP)
   }
 
-  const targetVelocity = reducedMotion
-    ? { x: 0, y: 0 }
-    : {
-        x: motion.delta.x / deltaTime,
-        y: motion.delta.y / deltaTime,
-      }
-  motion.previousVelocity = { ...motion.velocity }
-  motion.velocity = {
-    x: damp(motion.velocity.x, targetVelocity.x, 0.16),
-    y: damp(motion.velocity.y, targetVelocity.y, 0.16),
-  }
-  motion.acceleration = {
-    x: damp(motion.acceleration.x, (motion.velocity.x - motion.previousVelocity.x) / deltaTime, 0.08),
-    y: damp(motion.acceleration.y, (motion.velocity.y - motion.previousVelocity.y) / deltaTime, 0.08),
-  }
+  motion.delta.x = motion.smooth.x - motion.previousSmooth.x
+  motion.delta.y = motion.smooth.y - motion.previousSmooth.y
+
+  const targetVelocityX = reducedMotion ? 0 : motion.delta.x / deltaTime
+  const targetVelocityY = reducedMotion ? 0 : motion.delta.y / deltaTime
+
+  motion.previousVelocity.x = motion.velocity.x
+  motion.previousVelocity.y = motion.velocity.y
+
+  motion.velocity.x = damp(motion.velocity.x, targetVelocityX, 0.16)
+  motion.velocity.y = damp(motion.velocity.y, targetVelocityY, 0.16)
+
+  motion.acceleration.x = damp(motion.acceleration.x, (motion.velocity.x - motion.previousVelocity.x) / deltaTime, 0.08)
+  motion.acceleration.y = damp(motion.acceleration.y, (motion.velocity.y - motion.previousVelocity.y) / deltaTime, 0.08)
 
   const velocityLength = length(motion.velocity)
   motion.speed = damp(motion.speed, clamp(velocityLength / 3.2, 0, 1), 0.12)
-  motion.direction =
-    velocityLength > 0.025
-      ? {
-          x: motion.velocity.x / velocityLength,
-          y: motion.velocity.y / velocityLength,
-        }
-      : {
-          x: damp(motion.direction.x, 0, 0.08),
-          y: damp(motion.direction.y, 0, 0.08),
-        }
+
+  if (velocityLength > 0.025) {
+    motion.direction.x = motion.velocity.x / velocityLength
+    motion.direction.y = motion.velocity.y / velocityLength
+  } else {
+    motion.direction.x = damp(motion.direction.x, 0, 0.08)
+    motion.direction.y = damp(motion.direction.y, 0, 0.08)
+  }
   motion.idleMs = Math.max(0, time - motion.lastPointerTime)
   motion.lastTime = time
 

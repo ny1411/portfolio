@@ -198,6 +198,15 @@ select {
 
 .masking-parallax-depth--backdrop {
   z-index: 0;
+  opacity: 0.86;
+  transform: translate3d(var(--bg-x), var(--bg-y), 0) scale(var(--bg-scale));
+  will-change: transform;
+}
+
+.masking-parallax-depth--backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   background:
     radial-gradient(ellipse at 32% 68%, rgba(198, 77, 31, 0.38), transparent 27rem),
     radial-gradient(ellipse at 69% 22%, rgba(68, 126, 154, 0.26), transparent 24rem),
@@ -205,30 +214,43 @@ select {
     linear-gradient(100deg, rgba(10, 8, 8, 0.8) 0%, rgba(32, 20, 18, 0.72) 36%, rgba(11, 13, 18, 0.8) 72%, #040508 100%),
     url("../assets/images/portfolio portrait.png") center 38% / cover no-repeat;
   filter: blur(16px) brightness(0.62) saturate(0.88);
-  opacity: 0.86;
-  transform: translate3d(var(--bg-x), var(--bg-y), 0) scale(var(--bg-scale));
-  will-change: transform;
+}
+
+.masking-parallax-depth--atmosphere-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
 }
 
 .masking-parallax-depth--atmosphere {
   z-index: 1;
-  inset: 0;
+  inset: -8%;
   opacity: 0.46;
   background:
     linear-gradient(90deg, rgba(5, 5, 8, 0.74), transparent 22%, transparent 72%, rgba(5, 5, 8, 0.82)),
     radial-gradient(ellipse at 54% 43%, rgba(255, 232, 192, 0.28), transparent 24rem),
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 34px);
-  mix-blend-mode: soft-light;
   transform: translate3d(var(--atmo-x), var(--atmo-y), 0) scale(var(--atmo-scale));
   will-change: transform;
 }
 
-.masking-parallax-plate {
+.masking-parallax-plate-mask {
+  position: absolute;
   left: var(--frame-x);
   top: var(--frame-y);
   z-index: 2;
   width: var(--frame-width);
   height: var(--frame-height);
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 46%, #000 0 55%, rgba(0, 0, 0, 0.9) 70%, transparent 100%);
+  mask-image: radial-gradient(ellipse at 50% 46%, #000 0 55%, rgba(0, 0, 0, 0.9) 70%, transparent 100%);
+}
+
+.masking-parallax-plate {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   transform: translate3d(var(--plate-x), var(--plate-y), 0) scale(var(--plate-scale));
   transform-origin: var(--plate-origin-x) var(--plate-origin-y);
@@ -248,11 +270,6 @@ select {
 .masking-parallax-plate--base img {
   object-position: 50% 38%;
   filter: brightness(0.82) contrast(1.04) saturate(0.92);
-}
-
-.masking-parallax-plate--base {
-  -webkit-mask-image: radial-gradient(ellipse at 50% 46%, #000 0 55%, rgba(0, 0, 0, 0.9) 70%, transparent 100%);
-  mask-image: radial-gradient(ellipse at 50% 46%, #000 0 55%, rgba(0, 0, 0, 0.9) 70%, transparent 100%);
 }
 
 .masking-parallax-plate--base::after {
@@ -314,7 +331,6 @@ select {
     linear-gradient(90deg, rgba(1, 2, 4, 0.78), transparent 24%, transparent 72%, rgba(1, 2, 4, 0.82)),
     linear-gradient(180deg, rgba(1, 2, 4, 0.32), transparent 21%, rgba(1, 2, 4, 0.66));
   transform: scale(var(--vignette-scale));
-  will-change: transform;
 }
 
 @keyframes masking-hero-settle {

@@ -114,10 +114,28 @@ export function getHeroGeometry({
   }
 }
 
+const VAR_KEYS = [
+  '--atmo-x', '--atmo-y', '--atmo-scale',
+  '--bg-x', '--bg-y', '--bg-scale',
+  '--frame-height', '--frame-width', '--frame-x', '--frame-y',
+  '--mask-height', '--mask-x', '--mask-y', '--mask-width',
+  '--plate-origin-x', '--plate-origin-y', '--plate-scale',
+  '--plate-x', '--plate-y',
+  '--reveal-opacity', '--vignette-scale',
+] as const
+
+const prevVars: Record<string, string> = {}
+
 export function applyHeroVariables(element: HTMLElement, variables: Record<string, string>) {
-  Object.entries(variables).forEach(([name, value]) => {
-    element.style.setProperty(name, value)
-  })
+  const style = element.style
+  for (let i = 0; i < VAR_KEYS.length; i++) {
+    const key = VAR_KEYS[i]
+    const val = variables[key]
+    if (val !== undefined && val !== prevVars[key]) {
+      style.setProperty(key, val)
+      prevVars[key] = val
+    }
+  }
 }
 
 export function getScaleMatrixTransform(layer: Point & { origin: Point; scale: number }): string {

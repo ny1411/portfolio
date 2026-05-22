@@ -3,21 +3,43 @@ type ScheduledCallback = (time: number) => void
 interface ScheduledTask {
   callback: ScheduledCallback
   priority: number
+  dead: boolean
 }
 
 export class RafScheduler {
-  private tasks = new Set<ScheduledTask>()
+  private sortedTasks: ScheduledTask[] = []
   private rafId: number | null = null
+  private ticking = false
+  private pendingRemovals: ScheduledTask[] = []
 
   schedule(callback: ScheduledCallback, priority = 0): () => void {
-    const task = { callback, priority }
-    this.tasks.add(task)
+    const task: ScheduledTask = { callback, priority, dead: false }
+    
+    // Insert in sorted order (highest priority first)
+    let idx = 0
+    while (idx < this.sortedTasks.length && this.sortedTasks[idx].priority >= priority) {
+      idx++
+    }
+    this.sortedTasks.splice(idx, 0, task)
+    
     this.start()
 
     return () => {
-      this.tasks.delete(task)
-      if (this.tasks.size === 0) this.stop()
+      task.dead = true
+      if (this.ticking) {
+        this.pendingRemovals.push(task)
+      } else {
+        this.removeTask(task)
+      }
     }
+  }
+
+  private removeTask(task: ScheduledTask): void {
+    const idx = this.sortedTasks.indexOf(task)
+    if (idx !== -1) {
+      this.sortedTasks.splice(idx, 1)
+    }
+    if (this.sortedTasks.length === 0) this.stop()
   }
 
   private start(): void {
@@ -32,9 +54,21 @@ export class RafScheduler {
   }
 
   private tick = (time: number): void => {
-    const tasks = [...this.tasks].sort((a, b) => b.priority - a.priority)
-    tasks.forEach((task) => task.callback(time))
-    this.rafId = this.tasks.size > 0 ? window.requestAnimationFrame(this.tick) : null
+    this.ticking = true
+    const tasks = this.sortedTasks
+    for (let i = 0; i < tasks.length; i++) {
+      if (!tasks[i].dead) tasks[i].callback(time)
+    }
+    this.ticking = false
+
+    if (this.pendingRemovals.length > 0) {
+      for (const task of this.pendingRemovals) {
+        this.removeTask(task)
+      }
+      this.pendingRemovals.length = 0
+    }
+
+    this.rafId = this.sortedTasks.length > 0 ? window.requestAnimationFrame(this.tick) : null
   }
 }
 
