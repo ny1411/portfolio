@@ -19,7 +19,6 @@ export type CinematicCardAnimation =
 
 export type CinematicCardTone =
   | 'hero'
-  | 'experience'
   | 'project'
   | 'tool'
   | 'contact'

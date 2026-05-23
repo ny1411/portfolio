@@ -8,7 +8,7 @@ import {
 	RepeatWrapping,
 	type Group,
 } from 'three';
-import spiderLogoUrl from '../../assets/3d-elements/spider_logo3d.glb?url';
+import { threeElementAssets } from '../../lib/threeElementAssets';
 
 interface SpiderLogoLoaderProps {
 	label?: string;
@@ -51,7 +51,7 @@ export function SpiderLogoLoader({
 
 function SpinningSpiderLogo() {
 	const groupRef = useRef<Group>(null);
-	const { scene } = useGLTF(spiderLogoUrl);
+	const { scene } = useGLTF(threeElementAssets.logo);
 	const { model, material, grainTexture } = useMemo(() => {
 		const grain = createNoiseTexture();
 		const spiderRed = new MeshPhysicalMaterial({
@@ -94,6 +94,8 @@ function SpinningSpiderLogo() {
 		</group>
 	);
 }
+
+useGLTF.preload(threeElementAssets.logo);
 
 function createNoiseTexture(size = 256): CanvasTexture {
 	const canvas = document.createElement('canvas');

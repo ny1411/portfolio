@@ -61,6 +61,13 @@ export const resumeContent = {
 			link: 'https://drive.google.com/file/d/1wxjprxRy5IHJs8iBYombCEBykI_BvIUJ/view?usp=sharing',
 			tags: ['HTML5', 'CSS3', 'JavaScript', 'Responsive Design'],
 		},
+		{
+			title: 'PHP Developer at Fermion Infotech',
+			subtitle: 'On site, Navi Mumbai, 1 month',
+			body: ['Description coming soon.'],
+			link: '',
+			tags: ['PHP', 'MVC', 'HTML', 'CSS', 'jQuery', 'Bootstrap'],
+		},
 	],
 	projectItems: [
 		{

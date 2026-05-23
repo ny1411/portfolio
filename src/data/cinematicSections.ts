@@ -104,52 +104,6 @@ const maskingCards: CinematicCardModel[] = [
   },
 ]
 
-const aboutCards: CinematicCardModel[] = [
-  {
-    id: 'about-craft',
-    show: 0.03,
-    hide: 0.42,
-    label: 'About',
-    title: 'Frontend developer for clean product UI.',
-    body: 'I build responsive React and TypeScript interfaces that feel clear, fast, and easy to use.',
-    speaker: 'Frontend developer',
-    meta: 'React / TypeScript',
-    align: 'stage-right',
-    animation: 'stack',
-    tone: 'neutral',
-  },
-  {
-    id: 'about-method',
-    show: 0.46,
-    hide: 0.82,
-    label: 'Focus',
-    title: 'Dashboards, AI tools, and interaction details.',
-    body: 'My work varies from Education ERP dashboards, MapBox Location Tracking, Repository Analyzer, and Github-based dating app.',
-    speaker: 'Product UI',
-    meta: 'Dashboards / AI tools',
-    align: 'stage-left',
-    animation: 'stack',
-    tone: 'neutral',
-  },
-]
-
-const experienceCards: CinematicCardModel[] = resumeContent.workExperiences.map((item, index) => ({
-  id: `experience-${index}`,
-  show: index === 0 ? 0.12 : 0.52,
-  hide: index === 0 ? 0.46 : 0.86,
-  label: item.subtitle,
-  title: item.title,
-  body: item.body.join(' '),
-  speaker: 'Experience',
-  meta: 'Experience',
-  tags: [...item.tags],
-  href: item.link,
-  cta: 'View certificate',
-  align: index % 2 === 0 ? 'stage-right' : 'stage-left',
-  animation: 'stack',
-  tone: 'experience',
-}))
-
 const projectCards: CinematicCardModel[] = resumeContent.projectItems.map((project, index) => ({
   id: `project-${index}`,
   show: index === 0 ? 0.1 : 0.5,
@@ -208,16 +162,6 @@ export const CINEMATIC_TEXT_SCENES: Record<string, CinematicTextScene> = {
     id: 'masking-parallax',
     label: 'Masking',
     cards: maskingCards,
-  },
-  about: {
-    id: 'about',
-    label: 'About',
-    cards: aboutCards,
-  },
-  experience: {
-    id: 'experience',
-    label: 'Experience',
-    cards: experienceCards,
   },
   projects: {
     id: 'projects',

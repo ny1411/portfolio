@@ -3,13 +3,12 @@ import { ScrollTrigger } from '../../lib/gsap'
 import { preloadSequenceFrameRange } from '../../lib/sequenceLoader'
 import type { SceneConfig } from '../../types/scene'
 import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
-import { AboutSection } from '../sections/AboutSection'
 import { ContactSection } from '../sections/ContactSection'
-import { ExperienceSection } from '../sections/ExperienceSection'
 import { HeroSection } from '../sections/HeroSection'
 import { MaskingParallaxSection } from '../sections/MaskingParallaxSection'
 import { ProjectsSection } from '../sections/ProjectsSection'
 import { SkillsSection } from '../sections/SkillsSection'
+import { SuitEvolutionSection } from '../sections/SuitEvolutionSection'
 import { Scene } from './Scene'
 import { SceneNav } from './SceneNav'
 import { useScrollStore } from './scrollStore'
@@ -35,31 +34,9 @@ const scenes: SceneConfig[] = [
     pinDuration: 420,
   },
   {
-    id: 'about',
-    label: 'About',
-    sequence: {
-      folder: 'video2',
-      prefix: 'video',
-      startIndex: 200,
-      endIndex: 288,
-      extension: 'webp',
-      padLength: 3,
-      preloadStrategy: 'viewport',
-      preloadRadius: 14,
-    },
-  },
-  {
-    id: 'experience',
-    label: 'Experience',
-    sequence: {
-      folder: 'video3',
-      prefix: 'video',
-      startIndex: 3000,
-      endIndex: 3185,
-      extension: 'webp',
-      preloadStrategy: 'viewport',
-      preloadRadius: 16,
-    },
+    id: 'suit-evolution',
+    label: 'Suit Evolution',
+    pinDuration: 4200,
   },
   {
     id: 'projects',
@@ -105,8 +82,7 @@ const scenes: SceneConfig[] = [
 const sceneContent = [
   <HeroSection />,
   <MaskingParallaxSection />,
-  <AboutSection />,
-  <ExperienceSection />,
+  <SuitEvolutionSection />,
   <ProjectsSection />,
   <SkillsSection />,
   <ContactSection />,
@@ -158,9 +134,6 @@ export function ScrollyPage() {
   return (
     <main className={`scrolly-page ${startupReady ? 'is-ready' : 'is-loading'}`}>
       {!startupReady && <SpiderLogoLoader />}
-      <a className="skip-link" href="#about">
-        Skip to content
-      </a>
       <SceneNav scenes={scenes} />
       {scenes.map((scene, index) => (
         <Scene config={scene} index={index} key={scene.id}>

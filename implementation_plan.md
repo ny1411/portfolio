@@ -77,11 +77,8 @@ The core decision is to keep a single normalized progress value per scene as the
 - [x] Updated `src/components/sections/HeroSection.tsx`
   - Converted to cinematic-overlay-driven content.
 
-- [x] Updated `src/components/sections/AboutSection.tsx`
-  - Converted to cinematic-overlay-driven content.
-
-- [x] Updated `src/components/sections/ExperienceSection.tsx`
-  - Experience cards now appear through progress windows.
+- [x] Removed the old frame-sequence `AboutSection` and `ExperienceSection`.
+  - About content now lives in the masking scene; work experience is handled by Suit Evolution.
 
 - [x] Updated `src/components/sections/ProjectsSection.tsx`
   - Project cards now appear through progress windows.
