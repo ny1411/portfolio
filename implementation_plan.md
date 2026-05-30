@@ -80,9 +80,6 @@ The core decision is to keep a single normalized progress value per scene as the
 - [x] Removed the old frame-sequence `AboutSection` and `ExperienceSection`.
   - About content now lives in the masking scene; work experience is handled by Suit Evolution.
 
-- [x] Updated `src/components/sections/ProjectsSection.tsx`
-  - Project cards now appear through progress windows.
-
 - [x] Updated `src/components/sections/SkillsSection.tsx`
   - Skills now animate as a vertical list using the common card component.
 

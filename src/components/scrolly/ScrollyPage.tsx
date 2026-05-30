@@ -6,7 +6,7 @@ import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
 import { ContactSection } from '../sections/ContactSection'
 import { HeroSection } from '../sections/HeroSection'
 import { MaskingParallaxSection } from '../sections/MaskingParallaxSection'
-import { ProjectsSection } from '../sections/ProjectsSection'
+import { ProjectMultiverseSection } from '../sections/ProjectMultiverseSection'
 import { SkillsSection } from '../sections/SkillsSection'
 import { SuitEvolutionSection } from '../sections/SuitEvolutionSection'
 import { Scene } from './Scene'
@@ -39,17 +39,9 @@ const scenes: SceneConfig[] = [
     pinDuration: 4200,
   },
   {
-    id: 'projects',
-    label: 'Projects',
-    sequence: {
-      folder: 'video4',
-      prefix: 'video',
-      startIndex: 4000,
-      endIndex: 4168,
-      extension: 'webp',
-      preloadStrategy: 'viewport',
-      preloadRadius: 20,
-    },
+    id: 'project-multiverse',
+    label: 'Project Multiverse',
+    pinDuration: 2200,
   },
   {
     id: 'skills',
@@ -83,7 +75,7 @@ const sceneContent = [
   <HeroSection />,
   <MaskingParallaxSection />,
   <SuitEvolutionSection />,
-  <ProjectsSection />,
+  <ProjectMultiverseSection />,
   <SkillsSection />,
   <ContactSection />,
 ]

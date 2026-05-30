@@ -607,7 +607,6 @@ select {
 }
 
 .timeline-grid,
-.project-grid,
 .skill-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -615,7 +614,6 @@ select {
 }
 
 .timeline-card,
-.project-card,
 .skill-grid span {
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -629,8 +627,7 @@ select {
   font-size: 0.85rem;
 }
 
-.timeline-card h3,
-.project-card h3 {
+.timeline-card h3 {
   margin: 0.5rem 0;
 }
 
@@ -1340,6 +1337,428 @@ select {
 
   .suit-hud__rail {
     display: none;
+  }
+}
+
+#project-multiverse .cinematic-scene-hud,
+#project-multiverse .cinematic-footer-loader,
+#project-multiverse .cinematic-scene-footer {
+  display: none;
+}
+
+.project-multiverse {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  min-height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 77% 45%, rgba(86, 223, 255, 0.2), transparent 10rem),
+    radial-gradient(ellipse at 42% 46%, rgba(240, 43, 65, 0.25), transparent 32rem),
+    radial-gradient(ellipse at 65% 47%, rgba(32, 93, 218, 0.25), transparent 39rem),
+    linear-gradient(112deg, #020108, #0e0419 43%, #020a1b 74%, #01030a);
+  color: #f8fafc;
+}
+
+.project-multiverse::before,
+.project-multiverse::after,
+.project-multiverse__nebula,
+.project-multiverse__halftone,
+.project-multiverse-scene {
+  position: absolute;
+  pointer-events: none;
+}
+
+.project-multiverse::before {
+  inset: 0;
+  z-index: 4;
+  background:
+    radial-gradient(ellipse at center, transparent 19%, rgba(0, 1, 8, 0.5) 90%),
+    linear-gradient(90deg, rgba(1, 2, 10, 0.5), transparent 36%, rgba(1, 2, 10, 0.4));
+  content: "";
+}
+
+.project-multiverse::after {
+  inset: 0;
+  z-index: 8;
+  opacity: 0.09;
+  background: repeating-linear-gradient(
+    -14deg,
+    rgba(255, 255, 255, 0.12) 0 1px,
+    transparent 1px 6px
+  );
+  mix-blend-mode: overlay;
+  mask-image: radial-gradient(ellipse at center, transparent 22%, #000);
+  content: "";
+}
+
+.project-multiverse__nebula {
+  inset: -12%;
+  z-index: 1;
+  background:
+    conic-gradient(from 12deg at 77% 45%, transparent, rgba(31, 146, 255, 0.26), transparent 29%),
+    conic-gradient(from 190deg at 47% 46%, transparent, rgba(249, 37, 69, 0.27), transparent 34%),
+    radial-gradient(ellipse at 62% 47%, rgba(82, 36, 181, 0.18), transparent 54%);
+  filter: blur(48px) saturate(148%);
+  mix-blend-mode: screen;
+  animation: multiverse-nebula 16s ease-in-out infinite alternate;
+}
+
+.project-multiverse__halftone {
+  inset: 0;
+  z-index: 3;
+  opacity: 0.08;
+  background-image: radial-gradient(rgba(92, 187, 255, 0.48) 0.7px, transparent 0.7px);
+  background-size: 9px 9px;
+  mask-image: radial-gradient(circle at 77% 45%, #000, transparent 29%);
+}
+
+.project-multiverse-scene {
+  inset: 0;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.project-multiverse-scene canvas {
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: pan-y;
+}
+
+.project-multiverse-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.project-multiverse-ui__heading {
+  position: absolute;
+  left: clamp(1.2rem, 4.5vw, 4rem);
+  top: clamp(1.3rem, 7vh, 4.2rem);
+  width: min(27rem, calc(100vw - 2.4rem));
+}
+
+.project-multiverse-ui__signal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid rgba(34, 211, 238, 0.34);
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.4);
+  padding: 0.46rem 0.72rem;
+  color: #a5f3fc;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  backdrop-filter: blur(16px);
+}
+
+.project-multiverse-ui__heading h2 {
+  max-width: 12ch;
+  margin: 1rem 0 0.72rem;
+  color: #f8fafc;
+  font-size: clamp(2.05rem, 4.2vw, 3.9rem);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  text-shadow: 0 0 42px rgba(34, 211, 238, 0.13);
+}
+
+.project-multiverse-ui__heading p {
+  max-width: 29rem;
+  margin: 0;
+  color: #b6cce0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  line-height: 1.55;
+  text-transform: uppercase;
+}
+
+.project-multiverse-ui__rail {
+  position: absolute;
+  left: clamp(1.2rem, 4.5vw, 4rem);
+  bottom: clamp(1.4rem, 7vh, 4.3rem);
+  display: flex;
+  gap: 0.7rem;
+  pointer-events: auto;
+}
+
+.project-multiverse-ui__rail button {
+  --portal-color: #22d3ee;
+  display: grid;
+  gap: 0.2rem;
+  min-width: clamp(9.5rem, 16vw, 12.4rem);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 8px;
+  background: rgba(3, 8, 22, 0.62);
+  padding: 0.72rem 0.78rem;
+  color: #e2e8f0;
+  text-align: left;
+  backdrop-filter: blur(18px);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.project-multiverse-ui__rail button:hover,
+.project-multiverse-ui__rail button:focus-visible,
+.project-multiverse-ui__rail button.is-active {
+  border-color: color-mix(in srgb, var(--portal-color) 58%, white);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--portal-color) 19%, transparent);
+  transform: translateY(-2px);
+}
+
+.project-multiverse-ui__rail button:focus-visible {
+  outline: 2px solid var(--portal-color);
+  outline-offset: 3px;
+}
+
+.project-multiverse-ui__rail span {
+  color: var(--portal-color);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.project-multiverse-ui__rail strong {
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.project-multiverse-ui__rail small {
+  color: #94a3b8;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.project-portal-card {
+  --portal-color: #22d3ee;
+  position: absolute;
+  right: clamp(1.2rem, 4.5vw, 4rem);
+  top: 50%;
+  width: min(28rem, calc(46vw - 2rem));
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--portal-color) 46%, rgba(226, 232, 240, 0.16));
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--portal-color) 14%, transparent), transparent 47%),
+    rgba(3, 7, 20, 0.78);
+  box-shadow:
+    0 25px 74px -38px #000,
+    0 0 45px color-mix(in srgb, var(--portal-color) 12%, transparent);
+  padding: clamp(1.05rem, 2vw, 1.35rem);
+  pointer-events: auto;
+  transform: translateY(-50%);
+  backdrop-filter: blur(22px) saturate(145%);
+}
+
+.project-portal-card::before {
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background:
+    linear-gradient(rgba(125, 211, 252, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 211, 252, 0.1) 1px, transparent 1px);
+  background-size: 25px 25px;
+  content: "";
+}
+
+.project-portal-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.project-portal-card__close {
+  position: absolute;
+  right: 0.9rem;
+  top: 0.88rem;
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 1px solid rgba(226, 232, 240, 0.18);
+  border-radius: 50%;
+  background: rgba(2, 6, 23, 0.56);
+  color: #e2e8f0;
+}
+
+.project-portal-card__close:hover,
+.project-portal-card__close:focus-visible {
+  border-color: var(--portal-color);
+  color: #ffffff;
+}
+
+.project-portal-card__code {
+  color: var(--portal-color);
+  font-size: 0.63rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.project-portal-card h3 {
+  margin: 0.76rem 2.3rem 0.45rem 0;
+  color: #ffffff;
+  font-size: clamp(1.9rem, 3.1vw, 2.8rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.96;
+}
+
+.project-portal-card__signature {
+  display: block;
+  color: color-mix(in srgb, var(--portal-color) 74%, #ffffff);
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.project-portal-card p {
+  margin: 0.92rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  line-height: 1.56;
+}
+
+.project-portal-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+}
+
+.project-portal-card__tags span {
+  border: 1px solid color-mix(in srgb, var(--portal-color) 31%, rgba(255, 255, 255, 0.12));
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.5);
+  padding: 0.28rem 0.52rem;
+  color: #e2e8f0;
+  font-size: 0.63rem;
+  font-weight: 800;
+}
+
+.project-portal-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.project-portal-card__actions button,
+.project-portal-card__actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  border: 1px solid color-mix(in srgb, var(--portal-color) 42%, transparent);
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.52);
+  padding: 0.58rem 0.75rem;
+  color: #f8fafc;
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.project-portal-card__actions button {
+  background: color-mix(in srgb, var(--portal-color) 17%, rgba(2, 6, 23, 0.6));
+}
+
+.project-portal-card__actions button:hover,
+.project-portal-card__actions button:focus-visible,
+.project-portal-card__actions a:hover,
+.project-portal-card__actions a:focus-visible {
+  border-color: color-mix(in srgb, var(--portal-color) 80%, #ffffff);
+}
+
+.project-portal-card__instruction {
+  display: block;
+  margin-top: 0.82rem;
+  color: #94a3b8;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+@keyframes multiverse-nebula {
+  from {
+    transform: translate3d(-1.4%, -1%, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(1.3%, 1%, 0) scale(1.05);
+  }
+}
+
+@media (max-width: 900px) {
+  .project-multiverse-ui__heading {
+    top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .project-multiverse-ui__heading h2 {
+    font-size: clamp(1.65rem, 8vw, 2.45rem);
+  }
+
+  .project-multiverse-ui__heading p {
+    max-width: 21rem;
+    font-size: 0.64rem;
+  }
+
+  .project-multiverse-ui__rail {
+    left: 1rem;
+    right: 1rem;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    gap: 0.45rem;
+  }
+
+  .project-multiverse-ui__rail button {
+    flex: 1;
+    min-width: 0;
+    padding: 0.58rem;
+  }
+
+  .project-portal-card {
+    left: 1rem;
+    right: 1rem;
+    top: auto;
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 5.3rem);
+    width: auto;
+    max-height: min(50dvh, 27rem);
+    overflow-y: auto;
+    transform: none;
+  }
+
+  .project-portal-card h3 {
+    font-size: clamp(1.45rem, 7vw, 2rem);
+  }
+
+  .project-portal-card p {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .project-multiverse-ui__rail small {
+    display: none;
+  }
+
+  .project-multiverse-ui__rail strong {
+    font-size: 0.78rem;
+  }
+
+  .project-portal-card__actions {
+    gap: 0.38rem;
   }
 }
 

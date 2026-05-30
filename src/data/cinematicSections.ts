@@ -104,23 +104,6 @@ const maskingCards: CinematicCardModel[] = [
   },
 ]
 
-const projectCards: CinematicCardModel[] = resumeContent.projectItems.map((project, index) => ({
-  id: `project-${index}`,
-  show: index === 0 ? 0.1 : 0.5,
-  hide: index === 0 ? 0.44 : 0.84,
-  label: `Project 0${index + 1}`,
-  title: project.title,
-  body: project.body.join(' '),
-  speaker: 'Portfolio case',
-  meta: project.stack.slice(0, 3).join(' / '),
-  tags: [...project.stack],
-  href: project.links[0]?.href,
-  cta: project.links[0]?.label,
-  align: index % 2 === 0 ? 'stage-left' : 'stage-right',
-  animation: 'stack',
-  tone: 'project',
-}))
-
 const skillCards: CinematicCardModel[] = [
   {
     id: 'tools-heading',
@@ -162,11 +145,6 @@ export const CINEMATIC_TEXT_SCENES: Record<string, CinematicTextScene> = {
     id: 'masking-parallax',
     label: 'Masking',
     cards: maskingCards,
-  },
-  projects: {
-    id: 'projects',
-    label: 'Projects',
-    cards: projectCards,
   },
   skills: {
     id: 'tools',
