@@ -1,3 +1,5 @@
+import { SkillTree } from './skill-tree/SkillTree'
+
 export function SkillsSection() {
-  return <div className="scene-layout scene-layout--cinematic-only" />
+  return <SkillTree />
 }
