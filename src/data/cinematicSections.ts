@@ -1,22 +1,4 @@
-import { resumeContent } from './resumeContent'
 import type { CinematicCardModel, CinematicTextScene } from '../types/cinematic'
-
-const overviewPage = resumeContent.resumePages.find((page) => page.id === 'overview')
-
-const skillGroupLabels: Record<keyof typeof resumeContent.skillsAndStack, string> = {
-  languages: 'Languages',
-  frontend: 'Frontend UI',
-  backendApis: 'Backend + APIs',
-  cloudDatabases: 'Cloud + Data',
-  developerTools: 'Developer Tools',
-}
-
-const skillGroups = Object.entries(resumeContent.skillsAndStack).map(([key, skills]) => ({
-  id: key,
-  title: skillGroupLabels[key as keyof typeof resumeContent.skillsAndStack],
-  skills: [...skills],
-}))
-const skillStep = skillGroups.length > 1 ? 0.64 / (skillGroups.length - 1) : 0
 
 const heroCards: CinematicCardModel[] = [
   {
@@ -77,7 +59,7 @@ const maskingCards: CinematicCardModel[] = [
     show: 0.1,
     hide: 0.48,
     label: 'About',
-    title: `I am\n${overviewPage?.title ?? 'Neeraj Yamaji'}.`,
+    title: 'I am\nNeeraj Yamaji.',
     align: 'hero-left',
     animation: 'hero',
     tone: 'hero',
@@ -104,35 +86,6 @@ const maskingCards: CinematicCardModel[] = [
   },
 ]
 
-const skillCards: CinematicCardModel[] = [
-  {
-    id: 'tools-heading',
-    show: 0.04,
-    hide: 0.92,
-    label: 'Tools',
-    title: 'A practical stack for polished web products.',
-    speaker: `${skillGroups.length} grouped capabilities`,
-    meta: 'Stack',
-    align: 'stage-left',
-    animation: 'stack',
-    tone: 'tool',
-  },
-  ...skillGroups.map((group, index) => ({
-    id: `skill-${group.id}`,
-    show: 0.14 + index * skillStep,
-    hide: 0.98,
-    label: `Cluster ${String(index + 1).padStart(2, '0')}`,
-    title: group.title,
-    tags: group.skills,
-    speaker: 'Stack',
-    meta: 'Ready',
-    align: 'list' as const,
-    animation: 'list' as const,
-    tone: 'tool' as const,
-    persist: true,
-  })),
-]
-
 const contactCards: CinematicCardModel[] = []
 
 export const CINEMATIC_TEXT_SCENES: Record<string, CinematicTextScene> = {
@@ -145,11 +98,6 @@ export const CINEMATIC_TEXT_SCENES: Record<string, CinematicTextScene> = {
     id: 'masking-parallax',
     label: 'Masking',
     cards: maskingCards,
-  },
-  skills: {
-    id: 'tools',
-    label: 'Tools',
-    cards: skillCards,
   },
   contact: {
     id: 'contact',

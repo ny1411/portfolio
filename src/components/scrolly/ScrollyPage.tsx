@@ -46,15 +46,7 @@ const scenes: SceneConfig[] = [
   {
     id: 'skills',
     label: 'Skills',
-    sequence: {
-      folder: 'video5',
-      prefix: 'video',
-      startIndex: 5000,
-      endIndex: 5334,
-      extension: 'webp',
-      preloadStrategy: 'viewport',
-      preloadRadius: 18,
-    },
+    pinDuration: 1400,
   },
   {
     id: 'contact',
