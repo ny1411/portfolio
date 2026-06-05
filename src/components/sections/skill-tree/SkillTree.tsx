@@ -1,35 +1,6 @@
 import {
-  Atom,
-  Blocks,
-  BrainCircuit,
-  Braces,
-  Bug,
-  Cable,
   ChevronLeft,
   ChevronRight,
-  CloudCog,
-  Cpu,
-  Crosshair,
-  Database,
-  Fingerprint,
-  Gauge,
-  GitBranch,
-  KeyRound,
-  MapPinned,
-  Orbit,
-  PanelsTopLeft,
-  Puzzle,
-  Radar,
-  Rocket,
-  ScanLine,
-  Server,
-  ShieldCheck,
-  Sparkles,
-  SquareTerminal,
-  WandSparkles,
-  Workflow,
-  Zap,
-  type LucideIcon,
 } from 'lucide-react'
 import {
   useCallback,
@@ -43,7 +14,7 @@ import {
 } from 'react'
 import { defaultSelectedSkillId, skillTreeBranches } from './skillTreeData'
 import { SkillShowcase } from './SkillShowcase'
-import type { SkillIconName, SkillStatus, SkillTreeBranch, SkillTreeNode } from './types'
+import type { SkillStatus, SkillTreeBranch, SkillTreeNode } from './types'
 
 const statusLabels: Record<SkillStatus, string> = {
   locked: 'Locked',
@@ -51,35 +22,55 @@ const statusLabels: Record<SkillStatus, string> = {
   unlocked: 'Unlocked',
 }
 
-const iconMap: Record<SkillIconName, LucideIcon> = {
-  atom: Atom,
-  blocks: Blocks,
-  brain: BrainCircuit,
-  braces: Braces,
-  bug: Bug,
-  cable: Cable,
-  cloud: CloudCog,
-  cpu: Cpu,
-  crosshair: Crosshair,
-  database: Database,
-  fingerprint: Fingerprint,
-  gauge: Gauge,
-  git: GitBranch,
-  key: KeyRound,
-  map: MapPinned,
-  orbit: Orbit,
-  panels: PanelsTopLeft,
-  puzzle: Puzzle,
-  radar: Radar,
-  rocket: Rocket,
-  scan: ScanLine,
-  server: Server,
-  shield: ShieldCheck,
-  sparkles: Sparkles,
-  terminal: SquareTerminal,
-  wand: WandSparkles,
-  workflow: Workflow,
-  zap: Zap,
+type TheSvgIcon = {
+  fileType?: string
+  slug: string
+  title: string
+}
+
+const skillIconMap: Record<string, TheSvgIcon> = {
+  'api-rate-limiting': { slug: 'speedtest', title: 'API Rate Limiting' },
+  authentication: { slug: 'auth0', title: 'Authentication' },
+  axios: { slug: 'axios', title: 'Axios' },
+  bcrypt: { fileType: 'default', slug: 'google-password-manager', title: 'bcrypt' },
+  bootstrap: { slug: 'bootstrap', title: 'Bootstrap' },
+  'ci-cd-pipelines': { slug: 'github-actions', title: 'GitHub Actions' },
+  'context-api': { slug: 'react', title: 'Context API' },
+  css3: { slug: 'css', title: 'CSS' },
+  'css-grid-flexbox': { slug: 'css', title: 'CSS Flexbox' },
+  eslint: { slug: 'eslint', title: 'ESLint' },
+  'express-js': { slug: 'express', title: 'Express' },
+  'framer-motion': {fileType: 'light', slug: 'motion', title: 'Motion' },
+  'gemini-api': { slug: 'google-gemini', title: 'Google Gemini' },
+  git: { slug: 'git', title: 'Git' },
+  github: { slug: 'github', title: 'GitHub' },
+  html5: { slug: 'html5', title: 'HTML5' },
+  javascript: { slug: 'javascript', title: 'JavaScript' },
+  'javascript-es6': { slug: 'javascript', title: 'JavaScript' },
+  'jwt-jsonwebtoken': { slug: 'json-web-tokens', title: 'JSON Web Tokens' },
+  middleware: { slug: 'express', title: 'Express' },
+  mongodb: { slug: 'mongodb', title: 'MongoDB' },
+  mongoose: { slug: 'mongoose', title: 'Mongoose' },
+  'mvc-architecture': { slug: 'php', title: 'PHP' },
+  mysql: { slug: 'mysql', title: 'MySQL' },
+  'node-js': { slug: 'nodedotjs', title: 'Node.js' },
+  npm: { slug: 'npm', title: 'npm' },
+  postman: { slug: 'postman', title: 'Postman' },
+  prettier: { slug: 'prettier', title: 'Prettier' },
+  'react-js': { slug: 'react', title: 'React' },
+  'react-performance': { slug: 'react', title: 'React' },
+  'react-router': { slug: 'react-router', title: 'React Router' },
+  'realtime-communication': { slug: 'webrtc', title: 'Real Time Communication' },
+  render: { slug: 'render', title: 'Render' },
+  'rest-apis': { slug: 'swagger', title: 'Rest APIs' },
+  'shadcn-ui': { slug: 'shadcn-ui', title: 'Shadcn UI' },
+  'socket-io': { slug: 'socketdotio', title: 'Socket.IO' },
+  'tailwind-css': { slug: 'tailwind-css', title: 'Tailwind CSS' },
+  typescript: { slug: 'typescript', title: 'TypeScript' },
+  'vector-search': { slug: 'pinecone', title: 'Pinecone' },
+  vercel: { slug: 'vercel', title: 'Vercel' },
+  vite: { slug: 'vite', title: 'Vite' },
+  websockets: { slug: 'socketdotio', title: 'Socket.IO' },
 }
 
 interface SkillTreeProps {
@@ -353,7 +344,6 @@ function SkillBranchSlide({
   })
   const edges = useMemo(() => collectSkillTreeEdges(branch.nodes), [branch.nodes])
   const style = {
-    '--branch-accent': branch.accent,
     '--branch-order': String(index),
     '--root-spine-width':
       branch.nodes.length > 1 ? `${(branch.nodes.length - 1) * 4.05}rem` : '1px',
@@ -496,7 +486,7 @@ interface SkillNodeItemProps {
 }
 
 function SkillNodeItem({ branchTitle, node, depth, selectedNodeId, onSelect }: SkillNodeItemProps) {
-  const Icon = iconMap[node.icon]
+  const icon = skillIconMap[node.id]
   const isSelected = node.id === selectedNodeId
 
   return (
@@ -525,11 +515,10 @@ function SkillNodeItem({ branchTitle, node, depth, selectedNodeId, onSelect }: S
       >
         <span className="skill-node__branch-mark" aria-hidden="true" />
         <span className="skill-node__icon" aria-hidden="true">
-          <Icon aria-hidden="true" strokeWidth={1.65} />
+          <TheSvgIcon icon={icon} />
         </span>
         <span className="skill-node__logo" aria-hidden="true">{node.logo}</span>
         <span className="skill-node__label">{node.name}</span>
-        <span className="skill-node__state" aria-hidden="true" />
       </button>
 
       {node.children && node.children.length > 0 && (
@@ -556,6 +545,20 @@ function SkillNodeItem({ branchTitle, node, depth, selectedNodeId, onSelect }: S
         </ol>
       )}
     </li>
+  )
+}
+
+function TheSvgIcon({ icon }: { icon: TheSvgIcon }) {
+  const fileType = icon.fileType ?? 'mono'
+  return (
+    <img
+      alt=""
+      className="skill-node__svg-mark"
+      height="40"
+      src={`https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/${icon.slug}/${fileType}.svg`}
+      title={icon.title}
+      width="40"
+    />
   )
 }
 
