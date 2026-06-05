@@ -1,17 +1,5 @@
-const frameUrls = import.meta.glob('../../public/frames/**/*.{jpg,webp,avif}', {
-  eager: true,
-  import: 'default',
-  query: '?url',
-}) as Record<string, string>
+const PUBLIC_BASE_URL = import.meta.env.BASE_URL;
 
-export function getBundledFrameUrl(folder: string, filename: string): string | undefined {
-  const url =
-    frameUrls[`../../public/frames/${folder}/${filename}`] ??
-    frameUrls[`../../public/frames/${folder}/${filename}`]
-
-  return url ? normalizeFrameUrl(url) : undefined
-}
-
-function normalizeFrameUrl(url: string): string {
-  return url.replace('?import&url', '').replace('&url', '')
+export function getBundledFrameUrl(folder: string, filename: string): string {
+	return `${PUBLIC_BASE_URL}frames/${folder}/${filename}`;
 }
