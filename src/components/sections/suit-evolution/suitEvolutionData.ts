@@ -4,7 +4,7 @@ import { threeElementAssets } from '../../../lib/threeElementAssets'
 export interface SuitEvolutionExperience {
   id: string
   stage: string
-  suitName: string
+  experienceHeadline: string
   suitClass: string
   modelUrl: string
   company: string
@@ -28,7 +28,7 @@ const suitMappings = [
     modelUrl: threeElementAssets.suits.peterParkerPhotographer,
     stage: 'Suit 01',
     suitClass: 'Peter Parker Photographer Suit',
-    suitName: 'Neighborhood Origin',
+    experienceHeadline: 'Intern at Kaizen',
     accent: '#38bdf8',
     secondaryAccent: '#ef233c',
   },
@@ -38,7 +38,7 @@ const suitMappings = [
     modelUrl: threeElementAssets.suits.ultimate,
     stage: 'Suit 02',
     suitClass: 'Ultimate Tech Suit',
-    suitName: 'Systems Upgrade',
+    experienceHeadline: 'Intern at Yahweh',
     accent: '#ef233c',
     secondaryAccent: '#22d3ee',
   },
@@ -48,7 +48,7 @@ const suitMappings = [
     modelUrl: threeElementAssets.suits.hybrid,
     stage: 'Suit 03',
     suitClass: 'Hybrid Advanced Suit',
-    suitName: 'Hybrid Protocol',
+    experienceHeadline: 'Intern at Fermion',
     accent: '#D4A017',
     secondaryAccent: '#60a5fa',
   },

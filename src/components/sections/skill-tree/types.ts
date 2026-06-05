@@ -66,6 +66,5 @@ export interface SkillTreeBranch {
   id: string
   title: string
   subtitle: string
-  accent: string
   nodes: readonly SkillTreeNode[]
 }

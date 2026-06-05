@@ -26,7 +26,7 @@ export function ExperienceCard({ experience }: ExperienceCardProps) {
         <span>{experience.suitClass}</span>
       </div>
 
-      <h2>{experience.suitName}</h2>
+      <h2>{experience.experienceHeadline}</h2>
 
       <dl className="suit-hud-card__meta">
         <div>

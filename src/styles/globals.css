@@ -2813,8 +2813,7 @@ select {
 
 .skill-node__index,
 .skill-node__icon,
-.skill-node__copy,
-.skill-node__state {
+.skill-node__copy {
   position: relative;
   z-index: 1;
 }
@@ -2859,16 +2858,7 @@ select {
   text-transform: uppercase;
 }
 
-.skill-node__state {
-  width: 0.56rem;
-  aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--node-accent) 72%, #ffffff);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--node-accent) 44%, transparent);
-  box-shadow: 0 0 14px color-mix(in srgb, var(--node-accent) 64%, transparent);
-}
-
-.skill-node[data-status="locked"] .skill-node__state {
+.skill-node[data-status="locked"] {
   background: transparent;
   box-shadow: none;
 }
@@ -3858,8 +3848,7 @@ select {
 
 .skill-node__branch-mark,
 .skill-node__icon,
-.skill-node__copy,
-.skill-node__state {
+.skill-node__copy {
   display: none;
 }
 
@@ -4519,8 +4508,7 @@ select {
 .skill-node__icon,
 .skill-node__logo,
 .skill-node__text,
-.skill-node__badges,
-.skill-node__state {
+.skill-node__badges {
   position: relative;
   z-index: 1;
 }
@@ -4609,17 +4597,7 @@ select {
   white-space: nowrap;
 }
 
-.skill-node__state {
-  display: block;
-  width: 0.58rem;
-  aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--node-accent) 78%, #ffffff);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--node-accent) 70%, transparent);
-  box-shadow: 0 0 14px color-mix(in srgb, var(--node-accent) 72%, transparent);
-}
-
-.skill-node[data-status="unlocked"] .skill-node__state {
+.skill-node[data-status="unlocked"] {
   background: rgba(96, 165, 250, 0.26);
 }
 
@@ -4633,7 +4611,7 @@ select {
   filter: grayscale(0.42);
 }
 
-.skill-node[data-status="locked"] .skill-node__state {
+.skill-node[data-status="locked"] {
   background: transparent;
   box-shadow: none;
 }
@@ -5428,32 +5406,26 @@ select {
     0 0 18px rgba(34, 211, 238, 0.24);
 }
 
-.skill-node__icon svg {
+.skill-node__icon svg,
+.skill-node__svg-mark {
   display: block;
   width: 100% !important;
   height: 100% !important;
-  stroke: currentColor;
   filter:
     drop-shadow(0 0 5px color-mix(in srgb, var(--node-accent) 66%, transparent))
     drop-shadow(0 0 12px rgba(34, 211, 238, 0.2));
 }
 
-.skill-node__logo {
-  display: none;
+.skill-node__icon svg {
+  stroke: currentColor;
 }
 
-.skill-node__state {
-  position: absolute;
-  right: 0.22rem;
-  top: 0.22rem;
-  z-index: 1;
-  display: block;
-  width: 0.34rem;
-  aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--node-accent) 80%, #ffffff);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--node-accent) 68%, transparent);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--node-accent) 64%, transparent);
+.skill-node__svg-mark {
+  object-fit: contain;
+}
+
+.skill-node__logo {
+  display: none;
 }
 
 .skill-node[data-status="unlocked"] {
@@ -5471,7 +5443,7 @@ select {
   text-shadow: 0 0 10px rgba(96, 165, 250, 0.34);
 }
 
-.skill-node[data-status="unlocked"] .skill-node__state {
+.skill-node[data-status="unlocked"] {
   background: rgba(96, 165, 250, 0.28);
   box-shadow: 0 0 8px rgba(96, 165, 250, 0.36);
 }
@@ -5490,7 +5462,7 @@ select {
   text-shadow: none;
 }
 
-.skill-node[data-status="locked"] .skill-node__state {
+.skill-node[data-status="locked"] {
   border-color: rgba(148, 163, 184, 0.42);
   background: transparent;
   box-shadow: none;
