@@ -35,7 +35,7 @@ const scenes: SceneConfig[] = [
   },
   {
     id: 'suit-evolution',
-    label: 'Suit Evolution',
+    label: 'Experience Evolution',
     pinDuration: 4200,
   },
   {

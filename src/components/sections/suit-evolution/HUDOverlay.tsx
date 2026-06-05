@@ -24,7 +24,7 @@ export function HUDOverlay() {
         transition={{ duration: 0.45, ease: 'easeOut' }}
       >
         <Hexagon aria-hidden="true" size={15} />
-        <span>Suit Evolution</span>
+        <span>Experience-based suit evolution</span>
       </motion.div>
 
       <AnimatePresence mode="wait">

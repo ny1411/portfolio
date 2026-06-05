@@ -40,8 +40,8 @@ export function ProjectMultiverseOverlay() {
           <Orbit aria-hidden="true" size={15} />
           Project Multiverse
         </span>
-        <h2>Travel through built universes.</h2>
-        <p>Drag to inspect. Select to enter.</p>
+        <h2>Discover Projects Through Portals.</h2>
+        <p>Drag to inspect. Click to enter.</p>
       </header>
 
       <nav className="project-multiverse-ui__rail" aria-label="Project portals">
