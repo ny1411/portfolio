@@ -167,9 +167,9 @@ export function SkillTree({
         <header className="skill-tree-header">
           <span className="skill-tree-header__eyebrow">Skill Tree</span>
           <div>
-            <h2 id="skill-tree-title">Web powers unlocked.</h2>
+            <h2 id="skill-tree-title">UNLOCKED <br/>WEB SKILLS.</h2>
             <p>
-              A Spider-Man inspired progression map for practical web product abilities.
+              The technologies and skills behind my work.            
             </p>
           </div>
         </header>
@@ -549,7 +549,7 @@ function SkillNodeItem({ branchTitle, node, depth, selectedNodeId, onSelect }: S
 }
 
 function TheSvgIcon({ icon }: { icon: TheSvgIcon }) {
-  const fileType = icon.fileType ?? 'mono'
+  const fileType = icon.fileType ?? 'default'
   return (
     <img
       alt=""

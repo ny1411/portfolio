@@ -42,6 +42,16 @@ export const resumeContent = {
 	],
 	workExperiences: [
 		{
+			title: 'PHP Developer at Fermion Infotech',
+			subtitle: 'On site, Navi Mumbai, 1 month',
+			body: [
+				'Built and deployed projects including a Todo App and an E-Commerce Platform in PHP featuring authentication systems, session management, role-based modules, database integration, and responsive user interfaces.',
+				'Implemented secure login and password management using bcrypt, and developed interactive frontend features such as form validation, filtering, and dynamic content rendering.'
+			],
+			link: '',
+			tags: ['PHP', 'MVC', 'HTML', 'CSS', 'jQuery', 'REST APIs', 'Bootstrap'],
+		},
+		{
 			title: 'Frontend Developer Intern at Yahweh Software Solutions',
 			subtitle: 'Remote, Bengaluru, KA, May 2025 - Sept 2025',
 			body: [
@@ -49,7 +59,7 @@ export const resumeContent = {
 				'Developed a Bus Tracking System to provide real-time location updates using MapBoxGL.',
 			],
 			link: 'https://drive.google.com/file/d/1b5qlTdBPUsItcsR__OkyJDukrNN78U7p/view?usp=sharing',
-			tags: ['Frontend Development', 'Education ERP', 'Dashboards', 'MapBoxGL'],
+			tags: ['Frontend Development', 'ReactJS', 'Tailwind CSS', 'ERP Systems', 'Supabase', 'MapBoxGL'],
 		},
 		{
 			title: 'Web Developer Intern at Kaizen Softservices',
@@ -59,14 +69,7 @@ export const resumeContent = {
 				'Integrated interactive JavaScript features including form validation, search/filtering, pagination, and dynamic content loading.',
 			],
 			link: 'https://drive.google.com/file/d/1wxjprxRy5IHJs8iBYombCEBykI_BvIUJ/view?usp=sharing',
-			tags: ['HTML5', 'CSS3', 'JavaScript', 'Responsive Design'],
-		},
-		{
-			title: 'PHP Developer at Fermion Infotech',
-			subtitle: 'On site, Navi Mumbai, 1 month',
-			body: ['Description coming soon.'],
-			link: '',
-			tags: ['PHP', 'MVC', 'HTML', 'CSS', 'jQuery', 'Bootstrap'],
+			tags: ['HTML5', 'CSS3', 'JavaScript', 'Bootstrap', 'Responsive Design'],
 		},
 	],
 	projectItems: [

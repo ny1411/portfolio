@@ -10,7 +10,7 @@
   -webkit-font-smoothing: antialiased;
   --surface: rgba(15, 23, 42, 0.72);
   --border: rgba(148, 163, 184, 0.2);
-  --accent: #22c55e;
+  --accent: #ee2b2b;
 }
 
 * {
@@ -495,48 +495,186 @@ select {
 }
 
 .contact-social-buttons {
-  position: absolute;
-  left: 50%;
-  top: calc(50% + clamp(2.8rem, 6vh, 4.6rem));
-  z-index: 4;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.7rem;
-  width: min(24rem, calc(100vw - 2rem));
-  transform: translateX(-50%);
+	position: absolute;
+	left: 50%;
+	top: calc(50% + clamp(4.15rem, 8vh, 6.15rem));
+	z-index: 4;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 0.85rem;
+
+	width: min(26rem, calc(100vw - 2rem));
+
+	transform: translateX(-50%);
 }
 
 .contact-social-buttons a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.85rem;
-  height: 2.85rem;
-  border: 1px solid rgba(248, 250, 252, 0.2);
-  border-radius: 999px;
-  background: rgba(2, 6, 23, 0.28);
-  color: #e2e8f0;
-  padding: 0;
-  text-decoration: none;
-  transition:
-    border-color 180ms ease,
-    background 180ms ease,
-    color 180ms ease,
-    transform 180ms ease;
+	--button-size: 3rem;
+	--glass-bg: rgba(255, 255, 255, 0.06);
+	--glass-border: rgba(255, 255, 255, 0.14);
+
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	width: var(--button-size);
+	height: var(--button-size);
+
+	padding: 0;
+
+	border: 1px solid var(--glass-border);
+	border-radius: 999px;
+
+	background:
+		linear-gradient(135deg, rgba(255, 80, 80, 0.12), rgba(59, 130, 246, 0.14)),
+		var(--glass-bg);
+
+	box-shadow:
+		0 10px 30px rgba(0, 0, 0, 0.18),
+		inset 0 1px 0 rgba(255, 255, 255, 0.26);
+
+	backdrop-filter: blur(18px) saturate(180%);
+	-webkit-backdrop-filter: blur(18px) saturate(180%);
+
+	color: #f8fafc;
+	text-decoration: none;
+
+	transition:
+		transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+		border-color 220ms ease,
+		background-color 220ms ease,
+		box-shadow 220ms ease,
+		opacity 220ms ease;
+}
+
+.contact-social-buttons a::before {
+	content: '';
+
+	position: absolute;
+	inset: 0;
+
+	background: linear-gradient(
+		120deg,
+		transparent 0%,
+		rgba(255, 255, 255, 0.16) 45%,
+		transparent 100%
+	);
+
+	opacity: 0;
+	transform: translateX(-120%);
+	transition:
+		transform 600ms ease,
+		opacity 300ms ease;
+
+	pointer-events: none;
+}
+
+.contact-social-buttons a::after {
+	content: '';
+
+	position: absolute;
+	inset: 1px;
+
+	border-radius: inherit;
+
+	background: radial-gradient(
+		circle at top left,
+		rgba(255, 255, 255, 0.18),
+		transparent 42%
+	);
+
+	opacity: 0.9;
+	pointer-events: none;
 }
 
 .contact-social-buttons a:hover,
 .contact-social-buttons a:focus-visible {
-  border-color: rgba(125, 211, 252, 0.7);
-  background: rgba(14, 165, 233, 0.16);
-  color: #f8fafc;
-  transform: translateY(-2px);
+	transform: translateY(-4px) scale(1.04);
+
+	border-color: rgba(60, 60, 60, 0.92);
+
+	background:
+		linear-gradient(135deg, rgba(180, 19, 19, 0.42), rgba(27, 114, 220, 0.46)),
+		rgba(255, 255, 255, 0.08);
+
+	box-shadow:
+		0 16px 36px rgba(14, 165, 233, 0.18),
+		0 10px 24px rgba(0, 0, 0, 0.28),
+		inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.contact-social-buttons a:hover::before,
+.contact-social-buttons a:focus-visible::before {
+	opacity: 1;
+	transform: translateX(120%);
+}
+
+.contact-social-buttons a:active {
+	transform: translateY(-1px) scale(0.98);
 }
 
 .contact-social-buttons a:focus-visible {
-  outline: 2px solid rgba(125, 211, 252, 0.72);
-  outline-offset: 4px;
+	outline: 2px solid rgba(125, 211, 252, 0.7);
+	outline-offset: 4px;
+}
+
+.contact-social-buttons__logo {
+	position: relative;
+	z-index: 1;
+
+	width: 1.15rem;
+	height: 1.15rem;
+
+	object-fit: contain;
+
+	filter: brightness(0) invert(1)
+		drop-shadow(0 0 10px rgba(125, 211, 252, 0.28));
+
+	transition:
+		transform 220ms ease,
+		filter 220ms ease;
+}
+
+.contact-social-buttons a:hover .contact-social-buttons__logo,
+.contact-social-buttons a:focus-visible .contact-social-buttons__logo {
+	transform: scale(1.08);
+
+	filter: brightness(0) invert(1)
+		drop-shadow(0 0 14px rgba(125, 211, 252, 0.42));
+}
+
+.contact-social-buttons__logo--github,
+.contact-social-buttons__logo--linkedin,
+.contact-social-buttons__logo--whatsapp,
+.contact-social-buttons__logo--x {
+	width: 1.22rem;
+	height: 1.22rem;
+}
+
+@media (max-width: 640px) {
+	.contact-social-buttons {
+		gap: 0.7rem;
+		width: calc(100vw - 1.5rem);
+	}
+
+	.contact-social-buttons a {
+		--button-size: 2.8rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.contact-social-buttons a,
+	.contact-social-buttons a::before,
+	.contact-social-buttons__logo {
+		transition: none;
+	}
 }
 
 .hero-copy {

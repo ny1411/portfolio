@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
-import basePortraitUrl from '../../assets/images/portfolio portrait.png'
-import maskedPortraitUrl from '../../assets/images/spiderman portfolio portrait.png'
+import basePortraitUrl from '../../../public/parallax-images/portfolio portrait.png'
+import maskedPortraitUrl from '../../../public/parallax-images/spiderman portfolio portrait.png'
 import { getDeviceProfile } from '../../lib/performance'
 import { rafScheduler } from '../../lib/rafScheduler'
 import { useReducedMotion } from '../scrolly/useReducedMotion'
