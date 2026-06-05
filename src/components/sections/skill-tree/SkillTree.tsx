@@ -3,22 +3,44 @@ import {
   Blocks,
   BrainCircuit,
   Braces,
+  Bug,
+  Cable,
   ChevronLeft,
   ChevronRight,
   CloudCog,
+  Cpu,
+  Crosshair,
   Database,
+  Fingerprint,
   Gauge,
   GitBranch,
+  KeyRound,
   MapPinned,
+  Orbit,
   PanelsTopLeft,
+  Puzzle,
+  Radar,
+  Rocket,
+  ScanLine,
   Server,
   ShieldCheck,
   Sparkles,
   SquareTerminal,
+  WandSparkles,
   Workflow,
+  Zap,
   type LucideIcon,
 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent,
+} from 'react'
 import { defaultSelectedSkillId, skillTreeBranches } from './skillTreeData'
 import { SkillShowcase } from './SkillShowcase'
 import type { SkillIconName, SkillStatus, SkillTreeBranch, SkillTreeNode } from './types'
@@ -34,22 +56,63 @@ const iconMap: Record<SkillIconName, LucideIcon> = {
   blocks: Blocks,
   brain: BrainCircuit,
   braces: Braces,
+  bug: Bug,
+  cable: Cable,
   cloud: CloudCog,
+  cpu: Cpu,
+  crosshair: Crosshair,
   database: Database,
+  fingerprint: Fingerprint,
   gauge: Gauge,
   git: GitBranch,
+  key: KeyRound,
   map: MapPinned,
+  orbit: Orbit,
   panels: PanelsTopLeft,
+  puzzle: Puzzle,
+  radar: Radar,
+  rocket: Rocket,
+  scan: ScanLine,
   server: Server,
   shield: ShieldCheck,
   sparkles: Sparkles,
   terminal: SquareTerminal,
+  wand: WandSparkles,
   workflow: Workflow,
+  zap: Zap,
 }
 
 interface SkillTreeProps {
   branches?: readonly SkillTreeBranch[]
   initialSelectedNodeId?: string
+}
+
+interface ConnectorPath {
+  active: boolean
+  d: string
+  id: string
+  muted: boolean
+  x: number
+  y: number
+}
+
+interface ConnectorGraph {
+  height: number
+  paths: readonly ConnectorPath[]
+  width: number
+}
+
+interface SkillTreeEdge {
+  childId: string
+  childStatus: SkillStatus
+  parentId: string
+  parentStatus: SkillStatus
+}
+
+interface BranchPathGeometry {
+  d: string
+  junctionX: number
+  junctionY: number
 }
 
 export function SkillTree({
@@ -66,6 +129,10 @@ export function SkillTree({
   const trackRef = useRef<HTMLDivElement>(null)
   const slideRefs = useRef<Array<HTMLElement | null>>([])
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? initialNode
+  const activeNodeIds = useMemo(
+    () => new Set(findNodeIdPath(branches, selectedNode.id) ?? [selectedNode.id]),
+    [branches, selectedNode.id],
+  )
   const maxIndex = Math.max(0, branches.length - 1)
 
   const scrollToSlide = (index: number) => {
@@ -74,9 +141,12 @@ export function SkillTree({
     const slide =
       slideRefs.current[index] ??
       track?.querySelector<HTMLElement>(`.skill-branch:nth-child(${index + 1})`)
-    if (!viewport || !slide) return
+    if (!viewport || !track || !slide) return
 
-    setSlideOffset(slide.offsetLeft - (track?.offsetLeft ?? 0))
+    const rawOffset = slide.offsetLeft - track.offsetLeft
+    const maxOffset = Math.max(0, track.scrollWidth - viewport.clientWidth)
+
+    setSlideOffset(Math.min(rawOffset, maxOffset))
   }
 
   useEffect(() => {
@@ -104,11 +174,11 @@ export function SkillTree({
       <div className="skill-tree-section__backdrop" aria-hidden="true" />
       <div className="skill-tree-shell">
         <header className="skill-tree-header">
-          <span className="skill-tree-header__eyebrow">Technical Skills</span>
+          <span className="skill-tree-header__eyebrow">Skill Tree</span>
           <div>
-            <h2 id="skill-tree-title">Powers unlocked for web products.</h2>
+            <h2 id="skill-tree-title">Web powers unlocked.</h2>
             <p>
-              A structured map of frontend, backend, database, tooling, AI, and deployment skills.
+              A Spider-Man inspired progression map for practical web product abilities.
             </p>
           </div>
         </header>
@@ -125,9 +195,7 @@ export function SkillTree({
                 <ChevronLeft aria-hidden="true" size={18} />
               </button>
               <div className="skill-carousel__status" aria-live="polite">
-                <span>{String(activeIndex + 1).padStart(2, '0')}</span>
                 <strong>{branches[activeIndex]?.title}</strong>
-                <small>{branches.length} sections</small>
               </div>
               <button
                 aria-label="Show next skill category"
@@ -156,6 +224,7 @@ export function SkillTree({
                   <SkillBranchSlide
                     branch={branch}
                     index={index}
+                    activeNodeIds={activeNodeIds}
                     key={branch.id}
                     onSelect={setSelectedNodeId}
                     refCallback={(node) => {
@@ -191,19 +260,76 @@ function flattenNodes(nodes: readonly SkillTreeNode[]): SkillTreeNode[] {
   return nodes.flatMap((node) => [node, ...flattenNodes(node.children ?? [])])
 }
 
-function countNodes(nodes: readonly SkillTreeNode[]): number {
-  return nodes.reduce((total, node) => total + 1 + countNodes(node.children ?? []), 0)
+function findNodeIdPath(
+  branches: readonly SkillTreeBranch[],
+  selectedNodeId: string,
+): readonly string[] | null {
+  for (const branch of branches) {
+    const nodePath = findNodeIdPathInNodes(branch.nodes, selectedNodeId)
+
+    if (nodePath) return nodePath
+  }
+
+  return null
 }
 
-function countCompletedNodes(nodes: readonly SkillTreeNode[]): number {
-  return nodes.reduce(
-    (total, node) =>
-      total + (node.status !== 'locked' ? 1 : 0) + countCompletedNodes(node.children ?? []),
-    0,
+function findNodeIdPathInNodes(
+  nodes: readonly SkillTreeNode[],
+  selectedNodeId: string,
+): readonly string[] | null {
+  for (const node of nodes) {
+    if (node.id === selectedNodeId) return [node.id]
+
+    const childPath = findNodeIdPathInNodes(node.children ?? [], selectedNodeId)
+
+    if (childPath) return [node.id, ...childPath]
+  }
+
+  return null
+}
+
+function collectSkillTreeEdges(nodes: readonly SkillTreeNode[]): SkillTreeEdge[] {
+  return nodes.flatMap((node) =>
+    (node.children ?? []).flatMap((child) => [
+      {
+        childId: child.id,
+        childStatus: child.status,
+        parentId: node.id,
+        parentStatus: node.status,
+      },
+      ...collectSkillTreeEdges([child]),
+    ]),
   )
 }
 
+function createBranchPath(
+  parentX: number,
+  parentY: number,
+  childX: number,
+  childY: number,
+): BranchPathGeometry {
+  const deltaX = childX - parentX
+  const deltaY = Math.max(1, childY - parentY)
+  const stemLength = Math.min(34, Math.max(16, deltaY * 0.34))
+  const junctionX = parentX
+  const junctionY = parentY + stemLength
+  const childStemY = childY - Math.min(26, Math.max(12, deltaY * 0.24))
+  const shoulderX = Math.abs(deltaX) < 2 ? childX : parentX + deltaX * 0.68
+
+  return {
+    d: [
+      `M ${parentX.toFixed(2)} ${parentY.toFixed(2)}`,
+      `L ${junctionX.toFixed(2)} ${junctionY.toFixed(2)}`,
+      `L ${shoulderX.toFixed(2)} ${childStemY.toFixed(2)}`,
+      `L ${childX.toFixed(2)} ${childY.toFixed(2)}`,
+    ].join(' '),
+    junctionX,
+    junctionY,
+  }
+}
+
 interface SkillBranchSlideProps {
+  activeNodeIds: ReadonlySet<string>
   branch: SkillTreeBranch
   index: number
   selectedNodeId: string
@@ -212,41 +338,120 @@ interface SkillBranchSlideProps {
 }
 
 function SkillBranchSlide({
+  activeNodeIds,
   branch,
   index,
   onSelect,
   refCallback,
   selectedNodeId,
 }: SkillBranchSlideProps) {
-  const totalNodes = countNodes(branch.nodes)
-  const completedNodes = countCompletedNodes(branch.nodes)
-  const completion = Math.round((completedNodes / totalNodes) * 100)
+  const branchRef = useRef<HTMLElement | null>(null)
+  const [connectorGraph, setConnectorGraph] = useState<ConnectorGraph>({
+    height: 0,
+    paths: [],
+    width: 0,
+  })
+  const edges = useMemo(() => collectSkillTreeEdges(branch.nodes), [branch.nodes])
   const style = {
     '--branch-accent': branch.accent,
     '--branch-order': String(index),
-    '--branch-completion': `${completion}%`,
     '--root-spine-width':
       branch.nodes.length > 1 ? `${(branch.nodes.length - 1) * 4.05}rem` : '1px',
   } as CSSProperties
+  const handleBranchRef = useCallback(
+    (node: HTMLElement | null) => {
+      branchRef.current = node
+      refCallback(node)
+    },
+    [refCallback],
+  )
+  const measureConnectors = useCallback(() => {
+    const branchElement = branchRef.current
+
+    if (!branchElement) return
+
+    const branchRect = branchElement.getBoundingClientRect()
+    const paths = edges.flatMap((edge) => {
+      const parent = branchElement.querySelector<HTMLButtonElement>(
+        `.skill-node[data-node-id="${edge.parentId}"]`,
+      )
+      const child = branchElement.querySelector<HTMLButtonElement>(
+        `.skill-node[data-node-id="${edge.childId}"]`,
+      )
+
+      if (!parent || !child) return []
+
+      const parentRect = parent.getBoundingClientRect()
+      const childRect = child.getBoundingClientRect()
+      const parentX = parentRect.left + parentRect.width / 2 - branchRect.left
+      const parentY = parentRect.bottom - branchRect.top
+      const childX = childRect.left + childRect.width / 2 - branchRect.left
+      const childY = childRect.top - branchRect.top
+      const active = activeNodeIds.has(edge.parentId) && activeNodeIds.has(edge.childId)
+      const geometry = createBranchPath(parentX, parentY, childX, childY)
+
+      return [
+        {
+          active,
+          d: geometry.d,
+          id: `${edge.parentId}-${edge.childId}`,
+          muted: edge.parentStatus === 'locked' || edge.childStatus === 'locked',
+          x: geometry.junctionX,
+          y: geometry.junctionY,
+        },
+      ]
+    })
+
+    setConnectorGraph({
+      height: branchRect.height,
+      paths,
+      width: branchRect.width,
+    })
+  }, [activeNodeIds, edges])
+
+  useLayoutEffect(() => {
+    const branchElement = branchRef.current
+
+    if (!branchElement) return
+
+    measureConnectors()
+
+    const resizeObserver = new ResizeObserver(() => {
+      measureConnectors()
+    })
+
+    resizeObserver.observe(branchElement)
+    branchElement.querySelectorAll('.skill-node').forEach((node) => resizeObserver.observe(node))
+
+    const frame = window.requestAnimationFrame(measureConnectors)
+    window.addEventListener('resize', measureConnectors)
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('resize', measureConnectors)
+      resizeObserver.disconnect()
+    }
+  }, [measureConnectors])
 
   return (
-    <article className="skill-branch" ref={refCallback} style={style}>
+    <article
+      className="skill-branch"
+      data-root-count={branch.nodes.length}
+      data-tree-density={edges.length === 0 ? 'shallow' : 'branched'}
+      ref={handleBranchRef}
+      style={style}
+    >
       <header className="skill-branch__header">
-        <span>{String(index + 1).padStart(2, '0')}</span>
         <h3>{branch.title}</h3>
-        <p>{branch.subtitle}</p>
       </header>
 
-      <div className="skill-branch__completion" aria-label={`${branch.title} completion ${completion}%`}>
-        <span>Completion</span>
-        <strong>{completion}%</strong>
-        <i aria-hidden="true" />
-      </div>
+      <SkillBranchConnectors graph={connectorGraph} />
 
       <ol className="skill-branch__nodes" aria-label={`${branch.title} skill tree`}>
         {branch.nodes.map((node) => (
           <SkillNodeItem
             depth={0}
+            branchTitle={branch.title}
             key={node.id}
             node={node}
             onSelect={onSelect}
@@ -258,14 +463,39 @@ function SkillBranchSlide({
   )
 }
 
+function SkillBranchConnectors({ graph }: { graph: ConnectorGraph }) {
+  if (graph.width <= 0 || graph.height <= 0 || graph.paths.length === 0) return null
+
+  return (
+    <svg
+      aria-hidden="true"
+      className="skill-branch__connectors"
+      focusable="false"
+      viewBox={`0 0 ${graph.width} ${graph.height}`}
+    >
+      {graph.paths.map((path) => (
+        <g data-active={path.active} data-muted={path.muted} key={path.id}>
+          <path className="skill-branch__connector-path skill-branch__connector-path--base" d={path.d} />
+          <path className="skill-branch__connector-path skill-branch__connector-path--glow" d={path.d} />
+          {path.active && (
+            <path className="skill-branch__connector-path skill-branch__connector-path--energy" d={path.d} />
+          )}
+          <circle className="skill-branch__connector-junction" cx={path.x} cy={path.y} r="3.4" />
+        </g>
+      ))}
+    </svg>
+  )
+}
+
 interface SkillNodeItemProps {
   node: SkillTreeNode
   depth: number
+  branchTitle: string
   selectedNodeId: string
   onSelect: (nodeId: string) => void
 }
 
-function SkillNodeItem({ node, depth, selectedNodeId, onSelect }: SkillNodeItemProps) {
+function SkillNodeItem({ branchTitle, node, depth, selectedNodeId, onSelect }: SkillNodeItemProps) {
   const Icon = iconMap[node.icon]
   const isSelected = node.id === selectedNodeId
 
@@ -280,10 +510,13 @@ function SkillNodeItem({ node, depth, selectedNodeId, onSelect }: SkillNodeItemP
       }
     >
       <button
-        aria-label={`${node.name}, ${statusLabels[node.status]}`}
+        aria-current={isSelected ? 'true' : undefined}
+        aria-label={`${node.name}, ${branchTitle}, ${statusLabels[node.status]}`}
         aria-pressed={isSelected}
         className="skill-node"
         data-depth={depth}
+        data-node-kind={depth === 0 ? 'major' : 'sub'}
+        data-node-id={node.id}
         data-selected={isSelected}
         data-status={node.status}
         onClick={() => onSelect(node.id)}
@@ -292,7 +525,7 @@ function SkillNodeItem({ node, depth, selectedNodeId, onSelect }: SkillNodeItemP
       >
         <span className="skill-node__branch-mark" aria-hidden="true" />
         <span className="skill-node__icon" aria-hidden="true">
-          <Icon size={17} strokeWidth={2.1} />
+          <Icon aria-hidden="true" strokeWidth={1.65} />
         </span>
         <span className="skill-node__logo" aria-hidden="true">{node.logo}</span>
         <span className="skill-node__label">{node.name}</span>
@@ -313,6 +546,7 @@ function SkillNodeItem({ node, depth, selectedNodeId, onSelect }: SkillNodeItemP
           {node.children.map((child) => (
             <SkillNodeItem
               depth={depth + 1}
+              branchTitle={branchTitle}
               key={child.id}
               node={child}
               onSelect={onSelect}

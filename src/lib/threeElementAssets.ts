@@ -3,12 +3,64 @@ import peterParkerPhotographerSuitUrl from '../assets/3d-elements/spider-man - p
 import ultimateSuitUrl from '../assets/3d-elements/spider-man - ultimate suit.glb?url'
 import spiderLogoUrl from '../assets/3d-elements/spider_logo3d.glb?url'
 import portalSingleRingUrl from '../assets/3d-elements/portal_single_ring.glb?url'
+import axiosUrl from '../assets/3d-elements/skills/axios.glb?url'
+import cssUrl from '../assets/3d-elements/skills/css.glb?url'
+import expressJsUrl from '../assets/3d-elements/skills/express-js.glb?url'
+import geminiAiUrl from '../assets/3d-elements/skills/gemini-ai.glb?url'
+import gitUrl from '../assets/3d-elements/skills/git.glb?url'
+import githubUrl from '../assets/3d-elements/skills/github.glb?url'
+import htmlUrl from '../assets/3d-elements/skills/html.glb?url'
+import javascriptUrl from '../assets/3d-elements/skills/javascript.glb?url'
+import jsonWebTokenUrl from '../assets/3d-elements/skills/json-web-token.glb?url'
+import mongodbUrl from '../assets/3d-elements/skills/mongodb.glb?url'
+import mongooseUrl from '../assets/3d-elements/skills/mongoose.glb?url'
+import mySqlUrl from '../assets/3d-elements/skills/my-sql.glb?url'
+import nodeJsUrl from '../assets/3d-elements/skills/node-js.glb?url'
+import npmUrl from '../assets/3d-elements/skills/npm.glb?url'
+import postmanUrl from '../assets/3d-elements/skills/postman.glb?url'
+import prettierUrl from '../assets/3d-elements/skills/prettier.glb?url'
+import reactRouterUrl from '../assets/3d-elements/skills/react-router.glb?url'
+import reactUrl from '../assets/3d-elements/skills/react.glb?url'
+import renderUrl from '../assets/3d-elements/skills/render.glb?url'
+import socketIoUrl from '../assets/3d-elements/skills/socket.io.glb?url'
+import tailwindCssUrl from '../assets/3d-elements/skills/tailwind-css.glb?url'
+import typescriptUrl from '../assets/3d-elements/skills/typescript.glb?url'
+import vercelUrl from '../assets/3d-elements/skills/vercel.glb?url'
+import viteUrl from '../assets/3d-elements/skills/vite.glb?url'
+import webSocketsUrl from '../assets/3d-elements/skills/web-sockets.glb?url'
 
 export const threeElementAssets = {
   suits: {
     peterParkerPhotographer: peterParkerPhotographerSuitUrl,
     ultimate: ultimateSuitUrl,
     hybrid: hybridSuitUrl,
+  },
+  skills: {
+    axios: axiosUrl,
+    css3: cssUrl,
+    expressJs: expressJsUrl,
+    geminiApi: geminiAiUrl,
+    git: gitUrl,
+    github: githubUrl,
+    html5: htmlUrl,
+    javascriptEs6: javascriptUrl,
+    jwtJsonwebtoken: jsonWebTokenUrl,
+    mongodb: mongodbUrl,
+    mongoose: mongooseUrl,
+    mysql: mySqlUrl,
+    nodeJs: nodeJsUrl,
+    npm: npmUrl,
+    postman: postmanUrl,
+    prettier: prettierUrl,
+    reactJs: reactUrl,
+    reactRouter: reactRouterUrl,
+    render: renderUrl,
+    socketIo: socketIoUrl,
+    tailwindCss: tailwindCssUrl,
+    typescript: typescriptUrl,
+    vercel: vercelUrl,
+    vite: viteUrl,
+    websockets: webSocketsUrl,
   },
   logo: spiderLogoUrl,
   portalSingleRing: portalSingleRingUrl,
@@ -20,4 +72,5 @@ export const allThreeElementAssetUrls = [
   threeElementAssets.suits.hybrid,
   threeElementAssets.logo,
   threeElementAssets.portalSingleRing,
+  ...Object.values(threeElementAssets.skills),
 ] as const

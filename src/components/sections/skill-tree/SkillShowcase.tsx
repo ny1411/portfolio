@@ -1,8 +1,63 @@
+import { Bounds, Center, useGLTF } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { MathUtils, type Group } from 'three'
 import { getDeviceProfile } from '../../../lib/performance'
+import { threeElementAssets } from '../../../lib/threeElementAssets'
 import type { SkillArtifactPreset, SkillTreeNode } from './types'
+
+const skillModelUrls: Partial<Record<string, string>> = {
+  axios: threeElementAssets.skills.axios,
+  css3: threeElementAssets.skills.css3,
+  'express-js': threeElementAssets.skills.expressJs,
+  'gemini-api': threeElementAssets.skills.geminiApi,
+  git: threeElementAssets.skills.git,
+  github: threeElementAssets.skills.github,
+  html5: threeElementAssets.skills.html5,
+  'javascript-es6': threeElementAssets.skills.javascriptEs6,
+  'jwt-jsonwebtoken': threeElementAssets.skills.jwtJsonwebtoken,
+  mongodb: threeElementAssets.skills.mongodb,
+  mongoose: threeElementAssets.skills.mongoose,
+  mysql: threeElementAssets.skills.mysql,
+  'node-js': threeElementAssets.skills.nodeJs,
+  npm: threeElementAssets.skills.npm,
+  postman: threeElementAssets.skills.postman,
+  prettier: threeElementAssets.skills.prettier,
+  'react-js': threeElementAssets.skills.reactJs,
+  'react-router': threeElementAssets.skills.reactRouter,
+  render: threeElementAssets.skills.render,
+  'socket-io': threeElementAssets.skills.socketIo,
+  'tailwind-css': threeElementAssets.skills.tailwindCss,
+  typescript: threeElementAssets.skills.typescript,
+  vercel: threeElementAssets.skills.vercel,
+  vite: threeElementAssets.skills.vite,
+  websockets: threeElementAssets.skills.websockets,
+}
+
+const skillModelRotations: Partial<Record<string, [number, number, number]>> = {
+  axios: [0, -Math.PI / 2, 0],
+  'express-js': [0, -Math.PI / 2, 0],
+  'gemini-api': [0, -Math.PI / 2, 0],
+  git: [0, -Math.PI / 2, 0],
+  github: [0, -Math.PI / 4, 0],
+  html5: [0, -Math.PI / 2, 0],
+  'jwt-jsonwebtoken': [0, -Math.PI / 2, 0],
+  mongodb: [0, -Math.PI / 2, 0],
+  mongoose: [0, -Math.PI / 2, 0],
+  mysql: [0, -Math.PI / 2, 0],
+  'node-js': [0, -Math.PI / 2, 0],
+  npm: [0, -Math.PI / 2, 0],
+  postman: [0, -Math.PI / 2, 0],
+  prettier: [0, -Math.PI / 2, 0],
+  'react-js': [0, -Math.PI / 2, 0],
+  'react-router': [0, -Math.PI / 2, 0],
+  render: [0, -Math.PI / 2, 0],
+  'socket-io': [0, -Math.PI / 2, 0],
+  'tailwind-css': [0, -Math.PI / 2, 0],
+  vercel: [0, -Math.PI / 2, 0],
+  vite: [0, -Math.PI / 2, 0],
+  websockets: [0, -Math.PI / 2, 0],
+}
 
 interface SkillShowcaseProps {
   skill: SkillTreeNode
@@ -41,19 +96,20 @@ interface SkillShowcaseSceneProps {
 
 function SkillShowcaseScene({ skill, reducedMotion }: SkillShowcaseSceneProps) {
   const groupRef = useRef<Group>(null)
+  const modelUrl = skillModelUrls[skill.id]
+  const modelRotation = skillModelRotations[skill.id] ?? [0, 0, 0]
 
-  useFrame(({ camera, clock, pointer }, delta) => {
+  useFrame(({ camera, pointer }, delta) => {
     const group = groupRef.current
     const step = Math.min(delta, 0.05)
     const targetX = reducedMotion ? 0 : pointer.y * 0.18
     const targetY = reducedMotion ? 0 : pointer.x * 0.28
-    const drift = reducedMotion ? 0 : Math.sin(clock.elapsedTime * 0.8) * 0.05
 
     if (group) {
-      group.rotation.x = MathUtils.damp(group.rotation.x, targetX + drift, 5.2, step)
-      group.rotation.y = MathUtils.damp(group.rotation.y, targetY + clock.elapsedTime * 0.18, 3.6, step)
+      group.rotation.x = MathUtils.damp(group.rotation.x, targetX, 5.2, step)
+      group.rotation.y = MathUtils.damp(group.rotation.y, targetY, 3.6, step)
       group.rotation.z = MathUtils.damp(group.rotation.z, -pointer.x * 0.08, 5.2, step)
-      group.position.y = MathUtils.damp(group.position.y, drift * 0.35, 4.8, step)
+      group.position.y = MathUtils.damp(group.position.y, 0, 4.8, step)
     }
 
     camera.position.x = MathUtils.damp(camera.position.x, reducedMotion ? 0 : pointer.x * 0.18, 4.2, step)
@@ -63,8 +119,27 @@ function SkillShowcaseScene({ skill, reducedMotion }: SkillShowcaseSceneProps) {
 
   return (
     <group key={skill.id} ref={groupRef}>
-      <SkillArtifact accent={skill.accent} preset={skill.artifact} />
+      {modelUrl ? (
+        <SkillModel modelUrl={modelUrl} rotation={modelRotation} />
+      ) : (
+        <SkillArtifact accent={skill.accent} preset={skill.artifact} />
+      )}
     </group>
+  )
+}
+
+function SkillModel({ modelUrl, rotation }: { modelUrl: string; rotation: [number, number, number] }) {
+  const { scene } = useGLTF(modelUrl)
+  const model = useMemo(() => scene.clone(true), [scene])
+
+  return (
+    <Bounds fit clip observe margin={1.22}>
+      <Center>
+        <group rotation={rotation}>
+          <primitive object={model} />
+        </group>
+      </Center>
+    </Bounds>
   )
 }
 

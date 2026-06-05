@@ -7,6 +7,7 @@ function skill(
     accent: string
     artifact?: SkillTreeNode['artifact']
     icon?: SkillTreeNode['icon']
+    status?: SkillTreeNode['status']
     proficiency?: string
     description?: string
     usage?: readonly string[]
@@ -17,7 +18,7 @@ function skill(
   return {
     id,
     name,
-    status: 'mastered',
+    status: options.status ?? 'mastered',
     proficiency: options.proficiency ?? 'Portfolio-ready working knowledge',
     description:
       options.description ??
@@ -40,6 +41,7 @@ function getLogoMark(name: string): string {
     'CSS3': 'C3',
     'Bootstrap': 'B',
     'Tailwind CSS': 'TW',
+    'CSS Grid & Flexbox': 'GF',
     'shadcn/ui': 'UI',
     'JavaScript (ES6+)': 'JS',
     'Axios': 'AX',
@@ -47,6 +49,7 @@ function getLogoMark(name: string): string {
     'Context API': 'CX',
     'React Router': 'RR',
     'Framer Motion': 'FM',
+    'React Performance': 'RP',
     'TypeScript': 'TS',
     'Node.js': 'N',
     'Express.js': 'EX',
@@ -55,6 +58,7 @@ function getLogoMark(name: string): string {
     'Authentication': 'AU',
     'JWT (jsonwebtoken)': 'JWT',
     'bcrypt': 'BC',
+    'API Rate Limiting': 'RL',
     'Real-time Communication': 'RT',
     'WebSockets': 'WS',
     'Socket.IO': 'IO',
@@ -70,19 +74,29 @@ function getLogoMark(name: string): string {
     'ESLint': 'ES',
     'Prettier': 'PR',
     'Gemini API': 'AI',
+    'Prompt Design': 'PD',
+    'Vector Search': 'VS',
     'Vercel': 'VC',
     'Render': 'RD',
+    'CI/CD Pipelines': 'CI',
   }
 
   return logoMarks[name] ?? name.slice(0, 2).toUpperCase()
 }
 
-const frontendAccent = '#38bdf8'
-const backendAccent = '#22c55e'
-const databaseAccent = '#f59e0b'
-const toolsAccent = '#c084fc'
-const aiAccent = '#ef4444'
-const deploymentAccent = '#2dd4bf'
+const spiderCyan = '#22d3ee'
+const spiderBlue = '#2563eb'
+const electricBlue = '#60a5fa'
+const spiderRed = '#ef4444'
+const signalRed = '#fb7185'
+const webWhite = '#e0f2fe'
+
+const frontendAccent = spiderCyan
+const backendAccent = spiderBlue
+const databaseAccent = electricBlue
+const toolsAccent = spiderRed
+const aiAccent = spiderRed
+const deploymentAccent = spiderCyan
 
 export const skillTreeBranches: readonly SkillTreeBranch[] = [
   {
@@ -92,9 +106,9 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
     accent: frontendAccent,
     nodes: [
       skill('html5', 'HTML5', {
-        accent: '#fb923c',
+        accent: spiderRed,
         artifact: 'terminal',
-        icon: 'terminal',
+        icon: 'rocket',
         proficiency: 'Semantic page structure and accessible markup',
         description: 'Semantic HTML foundations for responsive portfolio and multi-page web experiences.',
         usage: ['Built multi-page website structures during internship work.', 'Used semantic sections and buttons in this skill tree.'],
@@ -103,31 +117,42 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
       skill('css3', 'CSS3', {
         accent: frontendAccent,
         artifact: 'web',
-        icon: 'sparkles',
+        icon: 'scan',
+        status: 'unlocked',
         proficiency: 'Responsive layouts, visual systems, and interaction states',
         description: 'Modern CSS for responsive layouts, dark UI treatments, and readable component states.',
         usage: ['Styled cinematic portfolio sections and responsive project interfaces.'],
         tags: ['Responsive Design', 'CSS Architecture', 'Cross-Browser UI'],
         children: [
-          skill('bootstrap', 'Bootstrap', {
-            accent: '#a78bfa',
+          skill('css-grid-flexbox', 'CSS Grid & Flexbox', {
+            accent: electricBlue,
             artifact: 'grid',
-            icon: 'blocks',
+            icon: 'crosshair',
+            proficiency: 'Precise responsive structure and alignment',
+            description: 'Grid and Flexbox patterns for stable, responsive layouts with clear visual hierarchy.',
+            usage: ['Structured responsive portfolio sections and interactive project layouts.'],
+            tags: ['CSS Grid', 'Flexbox', 'Responsive UI'],
+          }),
+          skill('bootstrap', 'Bootstrap', {
+            accent: electricBlue,
+            artifact: 'grid',
+            icon: 'puzzle',
             tags: ['Bootstrap', 'Responsive UI'],
           }),
           skill('tailwind-css', 'Tailwind CSS', {
-            accent: '#22d3ee',
+            accent: spiderCyan,
             artifact: 'web',
-            icon: 'sparkles',
+            icon: 'wand',
             proficiency: 'Utility-first styling for polished product UI',
             description: 'Tailwind CSS for fast, consistent, responsive interface styling.',
             usage: ['Styled Repolyse and portfolio UI systems with utility-first patterns.'],
             tags: ['Tailwind CSS', 'Repolyse', 'Design Tokens'],
             children: [
               skill('shadcn-ui', 'shadcn/ui', {
-                accent: '#e2e8f0',
+                accent: webWhite,
                 artifact: 'cards',
-                icon: 'panels',
+                icon: 'radar',
+                status: 'unlocked',
                 tags: ['Components', 'Design System'],
               }),
             ],
@@ -135,9 +160,10 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
         ],
       }),
       skill('javascript-es6', 'JavaScript (ES6+)', {
-        accent: '#facc15',
+        accent: electricBlue,
         artifact: 'terminal',
-        icon: 'braces',
+        icon: 'zap',
+        status: 'unlocked',
         proficiency: 'Interactive browser behavior and app logic',
         description: 'Modern JavaScript for interactive UI, dynamic content, filtering, validation, and app behavior.',
         usage: ['Implemented form validation, filtering, pagination, and dynamic loading in internship projects.'],
@@ -146,28 +172,30 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
           skill('react-js', 'React.js', {
             accent: frontendAccent,
             artifact: 'orbital',
-            icon: 'atom',
+            icon: 'orbit',
+            status: 'unlocked',
             proficiency: 'Reusable component architecture',
             description: 'React.js for component-driven project interfaces and portfolio sections.',
             usage: ['Built Repolyse, GitMatch, and this portfolio with reusable React modules.'],
             tags: ['React.js', 'Components', 'Repolyse', 'GitMatch'],
             children: [
               skill('context-api', 'Context API', {
-                accent: '#60a5fa',
+                accent: electricBlue,
                 artifact: 'pipeline',
-                icon: 'workflow',
+                icon: 'fingerprint',
                 tags: ['State Management', 'React'],
               }),
               skill('react-router', 'React Router', {
-                accent: '#38bdf8',
+                accent: spiderCyan,
                 artifact: 'portal',
-                icon: 'panels',
+                icon: 'radar',
                 tags: ['Routing', 'Navigation'],
                 children: [
                   skill('typescript', 'TypeScript', {
-                    accent: '#60a5fa',
+                    accent: electricBlue,
                     artifact: 'cube',
-                    icon: 'braces',
+                    icon: 'cpu',
+                    status: 'unlocked',
                     proficiency: 'Typed React components and data models',
                     description:
                       'TypeScript for safer component APIs, data configuration, and maintainable frontend code.',
@@ -175,9 +203,9 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
                     tags: ['Types', 'React', 'Maintainability'],
                     children: [
                       skill('axios', 'Axios', {
-                        accent: '#818cf8',
+                        accent: spiderBlue,
                         artifact: 'gateway',
-                        icon: 'workflow',
+                        icon: 'cable',
                         tags: ['HTTP Client', 'API Calls'],
                       }),
                     ],
@@ -185,13 +213,24 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
                 ],
               }),
               skill('framer-motion', 'Framer Motion', {
-                accent: '#f472b6',
+                accent: signalRed,
                 artifact: 'cards',
-                icon: 'sparkles',
+                icon: 'wand',
                 proficiency: 'Smooth UI transitions and gesture feedback',
                 description: 'Framer Motion for polished transitions, animated panels, and gesture-driven interfaces.',
                 usage: ['Used motion concepts for GitMatch swipe/card interactions and portfolio UI transitions.'],
                 tags: ['Animation', 'Gestures', 'Transitions'],
+              }),
+              skill('react-performance', 'React Performance', {
+                accent: spiderBlue,
+                artifact: 'pipeline',
+                icon: 'bug',
+                status: 'locked',
+                proficiency: 'Next optimization track for advanced React systems',
+                description:
+                  'Performance profiling, memoization strategy, and render-budget work for heavier React interfaces.',
+                usage: ['Planned next layer for complex portfolio scenes and data-heavy project interfaces.'],
+                tags: ['Profiling', 'Optimization', 'React'],
               }),
             ],
           }),
@@ -208,69 +247,82 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
       skill('node-js', 'Node.js', {
         accent: backendAccent,
         artifact: 'server',
-        icon: 'server',
+        icon: 'cpu',
+        status: 'unlocked',
         proficiency: 'Backend runtime for API-driven applications',
         description: 'Node.js for server-side JavaScript, routing, API logic, and real-time app foundations.',
         usage: ['Built GitMatch backend logic with Node.js and Express.js.'],
         tags: ['Node.js', 'Backend', 'GitMatch'],
         children: [
           skill('express-js', 'Express.js', {
-            accent: '#4ade80',
+            accent: electricBlue,
             artifact: 'gateway',
-            icon: 'workflow',
+            icon: 'cable',
             tags: ['Express.js', 'Routes', 'Middleware'],
           }),
           skill('rest-apis', 'REST APIs', {
-            accent: '#14b8a6',
+            accent: spiderCyan,
             artifact: 'shield',
-            icon: 'shield',
+            icon: 'crosshair',
             proficiency: 'Request/response contracts for app features',
             description: 'REST APIs for connecting frontend products to backend services and analysis workflows.',
             usage: ['Engineered Flask REST APIs for Repolyse repository analysis.'],
             tags: ['REST', 'Repolyse', 'API Contracts'],
           }),
           skill('middleware', 'Middleware', {
-            accent: '#86efac',
+            accent: spiderBlue,
             artifact: 'pipeline',
-            icon: 'workflow',
+            icon: 'scan',
             tags: ['Middleware', 'Request Pipeline'],
           }),
           skill('authentication', 'Authentication', {
-            accent: '#f43f5e',
+            accent: signalRed,
             artifact: 'shield',
-            icon: 'shield',
+            icon: 'key',
+            status: 'unlocked',
             tags: ['Auth', 'Security'],
             children: [
               skill('jwt-jsonwebtoken', 'JWT (jsonwebtoken)', {
-                accent: '#fb7185',
+                accent: signalRed,
                 artifact: 'shield',
-                icon: 'shield',
+                icon: 'fingerprint',
                 tags: ['JWT', 'jsonwebtoken'],
               }),
               skill('bcrypt', 'bcrypt', {
-                accent: '#f97316',
+                accent: spiderRed,
                 artifact: 'terminal',
-                icon: 'terminal',
+                icon: 'key',
                 tags: ['Password Hashing', 'Security'],
               }),
             ],
           }),
+          skill('api-rate-limiting', 'API Rate Limiting', {
+            accent: spiderRed,
+            artifact: 'shield',
+            icon: 'radar',
+            status: 'locked',
+            proficiency: 'Planned hardening layer for production APIs',
+            description: 'Rate limits and abuse protection for public API surfaces and auth-heavy services.',
+            usage: ['Planned for production-grade backend service hardening.'],
+            tags: ['API Security', 'Reliability'],
+          }),
           skill('realtime-communication', 'Real-time Communication', {
-            accent: '#22d3ee',
+            accent: spiderCyan,
             artifact: 'pipeline',
-            icon: 'workflow',
+            icon: 'zap',
+            status: 'unlocked',
             tags: ['Realtime', 'Live Updates'],
             children: [
               skill('websockets', 'WebSockets', {
-                accent: '#38bdf8',
+                accent: spiderCyan,
                 artifact: 'gateway',
-                icon: 'workflow',
+                icon: 'cable',
                 tags: ['WebSockets', 'Realtime'],
                 children: [
                   skill('socket-io', 'Socket.IO', {
-                    accent: '#818cf8',
+                    accent: spiderBlue,
                     artifact: 'portal',
-                    icon: 'workflow',
+                    icon: 'orbit',
                     tags: ['Socket.IO', 'Realtime'],
                   }),
                 ],
@@ -280,9 +332,9 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
         ],
       }),
       skill('mvc-architecture', 'MVC Architecture', {
-        accent: '#f59e0b',
+        accent: electricBlue,
         artifact: 'grid',
-        icon: 'blocks',
+        icon: 'puzzle',
         proficiency: 'Separation of concerns for maintainable apps',
         description: 'MVC Architecture for organizing application responsibilities and maintaining older web systems.',
         usage: ['Worked with MVC patterns during PHP developer experience.'],
@@ -297,17 +349,18 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
     accent: databaseAccent,
     nodes: [
       skill('mongodb', 'MongoDB', {
-        accent: '#22c55e',
+        accent: spiderCyan,
         artifact: 'database',
-        icon: 'database',
+        icon: 'radar',
+        status: 'unlocked',
         proficiency: 'Document database modeling',
         description: 'MongoDB for flexible document-oriented data models in JavaScript applications.',
         tags: ['MongoDB', 'NoSQL', 'Document Data'],
         children: [
           skill('mongoose', 'Mongoose', {
-            accent: '#16a34a',
+            accent: electricBlue,
             artifact: 'database',
-            icon: 'database',
+            icon: 'scan',
             tags: ['Mongoose', 'Schemas', 'Models'],
           }),
         ],
@@ -315,7 +368,8 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
       skill('mysql', 'MySQL', {
         accent: databaseAccent,
         artifact: 'database',
-        icon: 'database',
+        icon: 'crosshair',
+        status: 'unlocked',
         proficiency: 'Relational database basics',
         description: 'MySQL for relational data modeling, structured queries, and traditional backend applications.',
         tags: ['MySQL', 'SQL', 'Relational Data'],
@@ -329,49 +383,51 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
     accent: toolsAccent,
     nodes: [
       skill('git', 'Git', {
-        accent: '#f97316',
+        accent: spiderRed,
         artifact: 'pipeline',
-        icon: 'git',
+        icon: 'rocket',
         proficiency: 'Version control for project delivery',
         usage: ['Managed source history and project iterations across portfolio work.'],
         tags: ['Git', 'Version Control'],
       }),
       skill('github', 'GitHub', {
-        accent: '#e2e8f0',
+        accent: webWhite,
         artifact: 'portal',
-        icon: 'git',
+        icon: 'orbit',
         proficiency: 'Repository collaboration and project hosting',
         usage: ['Built GitHub-powered project ideas such as Repolyse and GitMatch.'],
         tags: ['GitHub', 'Repositories', 'Open Source'],
       }),
       skill('postman', 'Postman', {
-        accent: '#fb923c',
+        accent: signalRed,
         artifact: 'gateway',
-        icon: 'workflow',
+        icon: 'crosshair',
+        status: 'unlocked',
         tags: ['API Testing', 'HTTP'],
       }),
       skill('npm', 'npm', {
-        accent: '#ef4444',
+        accent: spiderRed,
         artifact: 'terminal',
-        icon: 'terminal',
+        icon: 'zap',
         tags: ['Packages', 'Scripts'],
       }),
       skill('vite', 'Vite', {
-        accent: '#a78bfa',
+        accent: electricBlue,
         artifact: 'cube',
-        icon: 'sparkles',
+        icon: 'rocket',
         tags: ['Vite', 'Frontend Tooling'],
       }),
       skill('eslint', 'ESLint', {
-        accent: '#818cf8',
+        accent: spiderBlue,
         artifact: 'shield',
-        icon: 'shield',
+        icon: 'bug',
+        status: 'unlocked',
         tags: ['Linting', 'Code Quality'],
       }),
       skill('prettier', 'Prettier', {
-        accent: '#f472b6',
+        accent: signalRed,
         artifact: 'web',
-        icon: 'sparkles',
+        icon: 'wand',
         tags: ['Formatting', 'Code Style'],
       }),
     ],
@@ -385,11 +441,33 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
       skill('gemini-api', 'Gemini API', {
         accent: aiAccent,
         artifact: 'neural',
-        icon: 'brain',
+        icon: 'orbit',
+        status: 'unlocked',
         proficiency: 'AI-assisted repository analysis',
         description: 'Gemini API integration for practical developer tooling and repository intelligence.',
         usage: ['Used Gemini in Repolyse to analyze GitHub repositories and support security scoring.'],
         tags: ['Gemini API', 'Repolyse', 'AI Integration'],
+        children: [
+          skill('prompt-design', 'Prompt Design', {
+            accent: spiderCyan,
+            artifact: 'neural',
+            icon: 'wand',
+            proficiency: 'Structured prompts for useful developer tooling output',
+            description: 'Prompt design patterns for repository analysis, scoring, and actionable summaries.',
+            usage: ['Shaped AI analysis flows in Repolyse around practical developer feedback.'],
+            tags: ['Prompting', 'Repository Analysis', 'AI UX'],
+          }),
+          skill('vector-search', 'Vector Search', {
+            accent: spiderBlue,
+            artifact: 'neural',
+            icon: 'radar',
+            status: 'locked',
+            proficiency: 'Planned retrieval layer for richer AI products',
+            description: 'Vector search and retrieval patterns for more contextual AI-assisted developer tools.',
+            usage: ['Future expansion path for AI-powered code and repository intelligence.'],
+            tags: ['Embeddings', 'Retrieval', 'AI'],
+          }),
+        ],
       }),
     ],
   },
@@ -400,9 +478,9 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
     accent: deploymentAccent,
     nodes: [
       skill('vercel', 'Vercel', {
-        accent: '#e2e8f0',
+        accent: webWhite,
         artifact: 'cloud',
-        icon: 'cloud',
+        icon: 'rocket',
         proficiency: 'Frontend deployment',
         usage: ['Deployed the Repolyse live demo on Vercel.'],
         tags: ['Vercel', 'Frontend Hosting', 'Repolyse'],
@@ -410,13 +488,24 @@ export const skillTreeBranches: readonly SkillTreeBranch[] = [
       skill('render', 'Render', {
         accent: deploymentAccent,
         artifact: 'server',
-        icon: 'cloud',
+        icon: 'cable',
+        status: 'unlocked',
         proficiency: 'Service deployment',
         description: 'Render for hosting backend services and deployable web app infrastructure.',
         tags: ['Render', 'Backend Hosting'],
+      }),
+      skill('ci-cd-pipelines', 'CI/CD Pipelines', {
+        accent: spiderBlue,
+        artifact: 'pipeline',
+        icon: 'zap',
+        status: 'locked',
+        proficiency: 'Planned release automation track',
+        description: 'Automated checks and deployment pipelines for stronger shipping workflows.',
+        usage: ['Future improvement path for larger portfolio and product codebases.'],
+        tags: ['CI/CD', 'Automation', 'Release Quality'],
       }),
     ],
   },
 ] as const
 
-export const defaultSelectedSkillId = 'html5'
+export const defaultSelectedSkillId = 'react-js'
