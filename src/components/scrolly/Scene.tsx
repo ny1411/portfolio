@@ -13,9 +13,10 @@ interface SceneProps {
   config: SceneConfig
   children: ReactNode
   index: number
+  sequenceEnabled?: boolean
 }
 
-export function Scene({ config, children, index }: SceneProps) {
+export function Scene({ config, children, index, sequenceEnabled = true }: SceneProps) {
   const sceneRef = useRef<HTMLElement>(null)
   const store = useScrollStore
   const pinDuration = config.pinDuration ?? getCinematicPinDuration(config.sequence)
@@ -43,7 +44,10 @@ export function Scene({ config, children, index }: SceneProps) {
 
   return (
     <section className="scrolly-scene" id={config.id} ref={sceneRef} aria-label={config.label}>
-      <ImageSequenceCanvas sceneId={config.id} sequence={config.sequence} />
+      <ImageSequenceCanvas
+        sceneId={config.id}
+        sequence={sequenceEnabled ? config.sequence : undefined}
+      />
       {children}
       <CinematicSceneOverlay
         config={CINEMATIC_TEXT_SCENES[config.id]}

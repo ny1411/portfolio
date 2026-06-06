@@ -1,18 +1,34 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react'
 import { ScrollTrigger } from '../../lib/gsap'
 import { preloadSequenceFrameRange } from '../../lib/sequenceLoader'
 import type { SceneConfig } from '../../types/scene'
 import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
-import { ContactSection } from '../sections/ContactSection'
 import { HeroSection } from '../sections/HeroSection'
-import { MaskingParallaxSection } from '../sections/MaskingParallaxSection'
-import { ProjectMultiverseSection } from '../sections/ProjectMultiverseSection'
-import { SkillsSection } from '../sections/SkillsSection'
-import { SuitEvolutionSection } from '../sections/SuitEvolutionSection'
 import { Scene } from './Scene'
 import { SceneNav } from './SceneNav'
 import { useScrollStore } from './scrollStore'
 import { useScrollSync } from './useScrollSync'
+
+const MaskingParallaxSection = lazySection(
+  () => import('../sections/MaskingParallaxSection'),
+  'MaskingParallaxSection',
+)
+const SuitEvolutionSection = lazySection(
+  () => import('../sections/SuitEvolutionSection'),
+  'SuitEvolutionSection',
+)
+const ProjectMultiverseSection = lazySection(
+  () => import('../sections/ProjectMultiverseSection'),
+  'ProjectMultiverseSection',
+)
+const SkillsSection = lazySection(
+  () => import('../sections/SkillsSection'),
+  'SkillsSection',
+)
+const ContactSection = lazySection(
+  () => import('../sections/ContactSection'),
+  'ContactSection',
+)
 
 const scenes: SceneConfig[] = [
   {
@@ -63,13 +79,13 @@ const scenes: SceneConfig[] = [
   },
 ]
 
-const sceneContent = [
-  <HeroSection />,
-  <MaskingParallaxSection />,
-  <SuitEvolutionSection />,
-  <ProjectMultiverseSection />,
-  <SkillsSection />,
-  <ContactSection />,
+const sceneContent: ComponentType[] = [
+  HeroSection,
+  MaskingParallaxSection,
+  SuitEvolutionSection,
+  ProjectMultiverseSection,
+  SkillsSection,
+  ContactSection,
 ]
 
 const MIN_STARTUP_LOADER_MS = 3000
@@ -77,6 +93,11 @@ const STARTUP_PRELOAD_FRAME_LIMIT = 50
 
 export function ScrollyPage() {
   const [startupReady, setStartupReady] = useState(false)
+  const activeSceneIndex = useScrollStore((state) => state.activeSceneIndex)
+  const isScrolling = useScrollStore((state) => state.isScrolling)
+  const allowedSceneIndex = startupReady
+    ? Math.min(scenes.length - 1, activeSceneIndex + (isScrolling ? 0 : 1))
+    : 0
 
   useScrollSync()
 
@@ -127,10 +148,39 @@ export function ScrollyPage() {
       {!startupReady && <SpiderLogoLoader />}
       <SceneNav scenes={scenes} />
       {scenes.map((scene, index) => (
-        <Scene config={scene} index={index} key={scene.id}>
-          {sceneContent[index]}
+        <Scene
+          config={scene}
+          index={index}
+          key={scene.id}
+          sequenceEnabled={index <= allowedSceneIndex}
+        >
+          <SceneContent index={index} mounted={index <= allowedSceneIndex} />
         </Scene>
       ))}
     </main>
+  )
+}
+
+function SceneContent({ index, mounted }: { index: number; mounted: boolean }) {
+  if (!mounted) return null
+
+  const Content = sceneContent[index]
+  if (!Content) return null
+
+  return (
+    <Suspense fallback={null}>
+      <Content />
+    </Suspense>
+  )
+}
+
+function lazySection<TModule extends Record<TKey, ComponentType>, TKey extends string>(
+  loader: () => Promise<TModule>,
+  exportName: TKey,
+) {
+  return lazy(() =>
+    loader().then((module) => ({
+      default: module[exportName],
+    })),
   )
 }
