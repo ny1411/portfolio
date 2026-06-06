@@ -44,6 +44,39 @@ const vercelUrl = PUBLIC_ASSET_URL('3d-elements/skills/vercel.glb');
 const viteUrl = PUBLIC_ASSET_URL('3d-elements/skills/vite.glb');
 const webSocketsUrl = PUBLIC_ASSET_URL('3d-elements/skills/web-sockets.glb');
 
+export const skillModelAssetUrls = [
+	axiosUrl,
+	cssUrl,
+	expressJsUrl,
+	PUBLIC_ASSET_URL('3d-elements/skills/firebase.glb'),
+	PUBLIC_ASSET_URL('3d-elements/skills/flask.glb'),
+	geminiAiUrl,
+	gitUrl,
+	githubUrl,
+	htmlUrl,
+	javascriptUrl,
+	jsonWebTokenUrl,
+	PUBLIC_ASSET_URL('3d-elements/skills/mapbox.glb'),
+	mongodbUrl,
+	mongooseUrl,
+	mySqlUrl,
+	nodeJsUrl,
+	npmUrl,
+	postmanUrl,
+	prettierUrl,
+	PUBLIC_ASSET_URL('3d-elements/skills/python.glb'),
+	reactRouterUrl,
+	reactUrl,
+	renderUrl,
+	socketIoUrl,
+	tailwindCssUrl,
+	PUBLIC_ASSET_URL('3d-elements/skills/three-js.glb'),
+	typescriptUrl,
+	vercelUrl,
+	viteUrl,
+	webSocketsUrl,
+] as const;
+
 export const threeElementAssets = {
 	suits: {
 		peterParkerPhotographer: peterParkerPhotographerSuitUrl,
@@ -87,5 +120,5 @@ export const allThreeElementAssetUrls = [
 	threeElementAssets.suits.hybrid,
 	threeElementAssets.logo,
 	threeElementAssets.portalSingleRing,
-	...Object.values(threeElementAssets.skills),
+	...skillModelAssetUrls,
 ] as const;

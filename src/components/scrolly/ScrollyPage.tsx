@@ -1,6 +1,8 @@
-import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react'
+import { useGLTF } from '@react-three/drei'
+import { lazy, Suspense, useEffect, useRef, useState, type ComponentType } from 'react'
 import { ScrollTrigger } from '../../lib/gsap'
 import { preloadSequenceFrameRange } from '../../lib/sequenceLoader'
+import { skillModelAssetUrls } from '../../lib/threeElementAssets'
 import type { SceneConfig } from '../../types/scene'
 import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
 import { HeroSection } from '../sections/HeroSection'
@@ -90,9 +92,11 @@ const sceneContent: ComponentType[] = [
 
 const MIN_STARTUP_LOADER_MS = 3000
 const STARTUP_PRELOAD_FRAME_LIMIT = 50
+const BACKGROUND_FRAME_PRELOAD_CONCURRENCY = 3
 
 export function ScrollyPage() {
   const [startupReady, setStartupReady] = useState(false)
+  const skillsWarmupStartedRef = useRef(false)
   const activeSceneIndex = useScrollStore((state) => state.activeSceneIndex)
   const isScrolling = useScrollStore((state) => state.isScrolling)
   const allowedSceneIndex = startupReady
@@ -123,6 +127,35 @@ export function ScrollyPage() {
 
     return () => controller.abort()
   }, [])
+
+  useEffect(() => {
+    if (!startupReady) return
+
+    const controller = new AbortController()
+    const firstSequenceScene = scenes.find((scene) => scene.sequence)
+
+    if (firstSequenceScene?.sequence) {
+      void preloadSequenceFrameRange(
+        firstSequenceScene.id,
+        firstSequenceScene.sequence,
+        controller.signal,
+        BACKGROUND_FRAME_PRELOAD_CONCURRENCY,
+      ).catch(() => undefined)
+    }
+
+    return () => controller.abort()
+  }, [startupReady])
+
+  useEffect(() => {
+    if (!startupReady || skillsWarmupStartedRef.current) return
+
+    const skillsSceneIndex = scenes.findIndex((scene) => scene.id === 'skills')
+    const previousSkillsSceneIndex = skillsSceneIndex - 1
+    if (activeSceneIndex < previousSkillsSceneIndex) return
+
+    skillsWarmupStartedRef.current = true
+    skillModelAssetUrls.forEach((assetUrl) => useGLTF.preload(assetUrl))
+  }, [activeSceneIndex, startupReady])
 
   useEffect(() => {
     const updateGlobalProgress = () => {
