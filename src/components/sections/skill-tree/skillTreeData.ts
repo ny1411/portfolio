@@ -82,8 +82,6 @@ function getLogoMark(name: string): string {
   return logoMarks[name] ?? name.slice(0, 2).toUpperCase()
 }
 
-const spiderCyan = '#22d3ee'
-
 export const skillTreeBranches: readonly SkillTreeBranch[] = [
   {
     id: 'frontend',
