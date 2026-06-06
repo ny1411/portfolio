@@ -101,12 +101,18 @@ export async function preloadSequenceFrameRange(
   sequence: SequenceConfig,
   signal?: AbortSignal,
   concurrency = 6,
+  frameLimit?: number,
 ): Promise<void> {
-  const frameCount = getFrameCount(sequence)
-  let nextIndex = sequence.startIndex
+  const frameCount = getPreloadFrameCount(sequence, frameLimit)
+  const workerCount = Math.min(getWorkerCount(concurrency), frameCount)
 
-  const workers = Array.from({ length: Math.min(concurrency, frameCount) }, async () => {
-    while (nextIndex <= sequence.endIndex) {
+  if (frameCount === 0 || workerCount === 0) return
+
+  let nextIndex = sequence.startIndex
+  const lastIndex = sequence.startIndex + frameCount - 1
+
+  const workers = Array.from({ length: workerCount }, async () => {
+    while (nextIndex <= lastIndex) {
       if (signal?.aborted) return
 
       const index = nextIndex
@@ -116,6 +122,20 @@ export async function preloadSequenceFrameRange(
   })
 
   await Promise.all(workers)
+}
+
+function getPreloadFrameCount(sequence: SequenceConfig, frameLimit?: number): number {
+  const sequenceFrameCount = Math.max(0, getFrameCount(sequence))
+  if (frameLimit === undefined) return sequenceFrameCount
+  if (!Number.isFinite(frameLimit)) return sequenceFrameCount
+
+  return Math.min(sequenceFrameCount, Math.max(0, Math.floor(frameLimit)))
+}
+
+function getWorkerCount(concurrency: number): number {
+  if (!Number.isFinite(concurrency)) return 0
+
+  return Math.max(0, Math.floor(concurrency))
 }
 
 function loadImageElement(src: string): Promise<HTMLImageElement> {

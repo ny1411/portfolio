@@ -73,6 +73,7 @@ const sceneContent = [
 ]
 
 const MIN_STARTUP_LOADER_MS = 3000
+const STARTUP_PRELOAD_FRAME_LIMIT = 50
 
 export function ScrollyPage() {
   const [startupReady, setStartupReady] = useState(false)
@@ -86,7 +87,13 @@ export function ScrollyPage() {
       window.setTimeout(resolve, MIN_STARTUP_LOADER_MS)
     })
     const framePreload = firstSequenceScene?.sequence
-      ? preloadSequenceFrameRange(firstSequenceScene.id, firstSequenceScene.sequence, controller.signal)
+      ? preloadSequenceFrameRange(
+          firstSequenceScene.id,
+          firstSequenceScene.sequence,
+          controller.signal,
+          6,
+          STARTUP_PRELOAD_FRAME_LIMIT,
+        )
       : Promise.resolve()
 
     void Promise.all([minimumDelay, framePreload.catch(() => undefined)]).then(() => {
