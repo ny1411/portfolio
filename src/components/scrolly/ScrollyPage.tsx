@@ -1,9 +1,15 @@
 import { useGLTF } from '@react-three/drei'
 import { lazy, Suspense, useEffect, useRef, useState, type ComponentType } from 'react'
 import { ScrollTrigger } from '../../lib/gsap'
-import { preloadSequenceFrameRange } from '../../lib/sequenceLoader'
-import { skillModelAssetUrls } from '../../lib/threeElementAssets'
-import type { SceneConfig } from '../../types/scene'
+import {
+  sceneAssetManifest,
+  sceneAssetManifestById,
+  scrollyScenes,
+  sectionModuleLoaders,
+} from '../../lib/sceneAssetManifest'
+import { framePreloadScheduler } from '../../lib/framePreloadScheduler'
+import { getDeviceProfile } from '../../lib/performance'
+import { getFrameIndex } from '../../lib/sequenceLoader'
 import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
 import { HeroSection } from '../sections/HeroSection'
 import { Scene } from './Scene'
@@ -12,74 +18,27 @@ import { useScrollStore } from './scrollStore'
 import { useScrollSync } from './useScrollSync'
 
 const MaskingParallaxSection = lazySection(
-  () => import('../sections/MaskingParallaxSection'),
+  sectionModuleLoaders.maskingParallax,
   'MaskingParallaxSection',
 )
 const SuitEvolutionSection = lazySection(
-  () => import('../sections/SuitEvolutionSection'),
+  sectionModuleLoaders.suitEvolution,
   'SuitEvolutionSection',
 )
 const ProjectMultiverseSection = lazySection(
-  () => import('../sections/ProjectMultiverseSection'),
+  sectionModuleLoaders.projectMultiverse,
   'ProjectMultiverseSection',
 )
 const SkillsSection = lazySection(
-  () => import('../sections/SkillsSection'),
+  sectionModuleLoaders.skills,
   'SkillsSection',
 )
 const ContactSection = lazySection(
-  () => import('../sections/ContactSection'),
+  sectionModuleLoaders.contact,
   'ContactSection',
 )
 
-const scenes: SceneConfig[] = [
-  {
-    id: 'hero',
-    label: 'Hero',
-    sequence: {
-      folder: 'video1',
-      prefix: 'video',
-      startIndex: 1000,
-      endIndex: 1296,
-      extension: 'webp',
-      preloadStrategy: 'viewport',
-      preloadRadius: 18,
-    },
-  },
-  {
-    id: 'masking-parallax',
-    label: 'Masking',
-    pinDuration: 420,
-  },
-  {
-    id: 'suit-evolution',
-    label: 'Experience Evolution',
-    pinDuration: 4200,
-  },
-  {
-    id: 'project-multiverse',
-    label: 'Project Multiverse',
-    pinDuration: 2200,
-  },
-  {
-    id: 'skills',
-    label: 'Skills',
-    pinDuration: 1400,
-  },
-  {
-    id: 'contact',
-    label: 'Contact',
-    sequence: {
-      folder: 'video6',
-      prefix: 'video',
-      startIndex: 6000,
-      endIndex: 6139,
-      extension: 'webp',
-      preloadStrategy: 'viewport',
-      preloadRadius: 18,
-    },
-  },
-]
+const scenes = scrollyScenes
 
 const sceneContent: ComponentType[] = [
   HeroSection,
@@ -92,33 +51,35 @@ const sceneContent: ComponentType[] = [
 
 const MIN_STARTUP_LOADER_MS = 3000
 const STARTUP_PRELOAD_FRAME_LIMIT = 50
-const BACKGROUND_FRAME_PRELOAD_CONCURRENCY = 3
+const STARTUP_FRAME_PRELOAD_CONCURRENCY = 6
 
 export function ScrollyPage() {
   const [startupReady, setStartupReady] = useState(false)
-  const skillsWarmupStartedRef = useRef(false)
+  const [heroSequenceReady, setHeroSequenceReady] = useState(false)
+  const contactWarmupStartedRef = useRef(false)
+  const preloadedGlbUrlsRef = useRef<Set<string>>(new Set())
+  const preloadedSectionIdsRef = useRef<Set<string>>(new Set())
   const activeSceneIndex = useScrollStore((state) => state.activeSceneIndex)
+  const sceneProgress = useScrollStore((state) => state.sceneProgress)
   const isScrolling = useScrollStore((state) => state.isScrolling)
-  const allowedSceneIndex = startupReady
-    ? Math.min(scenes.length - 1, activeSceneIndex + (isScrolling ? 0 : 1))
-    : 0
+  const scrollDirection = useScrollStore((state) => state.direction)
 
   useScrollSync()
 
   useEffect(() => {
     const controller = new AbortController()
-    const firstSequenceScene = scenes.find((scene) => scene.sequence)
+    const heroScene = sceneAssetManifestById.hero
     const minimumDelay = new Promise((resolve) => {
       window.setTimeout(resolve, MIN_STARTUP_LOADER_MS)
     })
-    const framePreload = firstSequenceScene?.sequence
-      ? preloadSequenceFrameRange(
-          firstSequenceScene.id,
-          firstSequenceScene.sequence,
-          controller.signal,
-          6,
-          STARTUP_PRELOAD_FRAME_LIMIT,
-        )
+    const framePreload = heroScene.sequence
+      ? framePreloadScheduler.preloadStartupHeroFrames({
+          concurrency: STARTUP_FRAME_PRELOAD_CONCURRENCY,
+          frameLimit: STARTUP_PRELOAD_FRAME_LIMIT,
+          sceneId: heroScene.id,
+          sequence: heroScene.sequence,
+          signal: controller.signal,
+        })
       : Promise.resolve()
 
     void Promise.all([minimumDelay, framePreload.catch(() => undefined)]).then(() => {
@@ -132,29 +93,96 @@ export function ScrollyPage() {
     if (!startupReady) return
 
     const controller = new AbortController()
-    const firstSequenceScene = scenes.find((scene) => scene.sequence)
+    const heroScene = sceneAssetManifestById.hero
 
-    if (firstSequenceScene?.sequence) {
-      void preloadSequenceFrameRange(
-        firstSequenceScene.id,
-        firstSequenceScene.sequence,
-        controller.signal,
-        BACKGROUND_FRAME_PRELOAD_CONCURRENCY,
-      ).catch(() => undefined)
+    if (!heroScene.sequence) {
+      window.setTimeout(() => {
+        if (!controller.signal.aborted) setHeroSequenceReady(true)
+      }, 0)
+
+      return () => controller.abort()
     }
+
+    void framePreloadScheduler
+      .preloadHeroRemainder({
+        concurrency: getHeroRemainderConcurrency(),
+        sceneId: heroScene.id,
+        sequence: heroScene.sequence,
+        skippedFrameCount: STARTUP_PRELOAD_FRAME_LIMIT,
+        signal: controller.signal,
+      })
+      .then(() => {
+        if (!controller.signal.aborted) setHeroSequenceReady(true)
+      })
+      .catch(() => undefined)
 
     return () => controller.abort()
   }, [startupReady])
 
   useEffect(() => {
-    if (!startupReady || skillsWarmupStartedRef.current) return
+    framePreloadScheduler.setScrolling(isScrolling)
+  }, [isScrolling])
 
-    const skillsSceneIndex = scenes.findIndex((scene) => scene.id === 'skills')
-    const previousSkillsSceneIndex = skillsSceneIndex - 1
-    if (activeSceneIndex < previousSkillsSceneIndex) return
+  useEffect(() => {
+    return () => framePreloadScheduler.abortAll()
+  }, [])
 
-    skillsWarmupStartedRef.current = true
-    skillModelAssetUrls.forEach((assetUrl) => useGLTF.preload(assetUrl))
+  useEffect(() => {
+    if (!startupReady || contactWarmupStartedRef.current) return
+    if (!heroSequenceReady && activeSceneIndex < 1) return
+
+    const contactScene = sceneAssetManifestById.contact
+    if (!contactScene.sequence) return
+
+    contactWarmupStartedRef.current = true
+    void framePreloadScheduler
+      .preloadContactBackground({
+        concurrency: getContactBackgroundConcurrency(),
+        sceneId: contactScene.id,
+        sequence: contactScene.sequence,
+      })
+      .catch(() => undefined)
+  }, [activeSceneIndex, heroSequenceReady, startupReady])
+
+  useEffect(() => {
+    if (!startupReady) return
+
+    getWarmScenes(activeSceneIndex).forEach((scene) => {
+      if (!scene.sequence) return
+
+      const progress = getWarmSceneProgress(scene.index, activeSceneIndex, sceneProgress, scrollDirection)
+      const centerIndex = getFrameIndex(scene.sequence, progress)
+
+      framePreloadScheduler.preloadFrameWindow({
+        centerIndex,
+        direction: scrollDirection,
+        maxFrames: scene.index === activeSceneIndex ? 12 : 8,
+        priority: scene.index === activeSceneIndex ? 'hot' : 'warm',
+        sceneId: scene.id,
+        sequence: scene.sequence,
+      })
+    })
+  }, [activeSceneIndex, sceneProgress, scrollDirection, startupReady])
+
+  useEffect(() => {
+    if (!startupReady) return
+
+    getWarmScenes(activeSceneIndex).forEach((scene) => {
+      if (scene.preloadModule && !preloadedSectionIdsRef.current.has(scene.id)) {
+        preloadedSectionIdsRef.current.add(scene.id)
+
+        void scene.preloadModule().catch(() => {
+          preloadedSectionIdsRef.current.delete(scene.id)
+        })
+      }
+
+      scene.glbAssetUrls.forEach((assetUrl) => {
+        if (preloadedGlbUrlsRef.current.has(assetUrl)) return
+
+        preloadedGlbUrlsRef.current.add(assetUrl)
+        useGLTF.preload(assetUrl)
+      })
+    })
   }, [activeSceneIndex, startupReady])
 
   useEffect(() => {
@@ -185,9 +213,9 @@ export function ScrollyPage() {
           config={scene}
           index={index}
           key={scene.id}
-          sequenceEnabled={index <= allowedSceneIndex}
+          sequenceEnabled={isSceneInWarmWindow(index, activeSceneIndex, startupReady)}
         >
-          <SceneContent index={index} mounted={index <= allowedSceneIndex} />
+          <SceneContent index={index} mounted={isSceneInWarmWindow(index, activeSceneIndex, startupReady)} />
         </Scene>
       ))}
     </main>
@@ -216,4 +244,44 @@ function lazySection<TModule extends Record<TKey, ComponentType>, TKey extends s
       default: module[exportName],
     })),
   )
+}
+
+function getWarmSceneProgress(
+  sceneIndex: number,
+  activeSceneIndex: number,
+  activeSceneProgress: number,
+  direction: 'up' | 'down',
+): number {
+  if (sceneIndex === activeSceneIndex) return activeSceneProgress
+  if (sceneIndex < activeSceneIndex) return direction === 'up' ? 1 : 0.8
+
+  return direction === 'down' ? 0 : 0.2
+}
+
+function getWarmScenes(activeSceneIndex: number) {
+  return sceneAssetManifest.filter((scene) => isSceneInWarmWindow(scene.index, activeSceneIndex, true))
+}
+
+function isSceneInWarmWindow(index: number, activeSceneIndex: number, startupReady: boolean): boolean {
+  if (!startupReady) return index === 0
+
+  return Math.abs(index - activeSceneIndex) <= 1
+}
+
+function getHeroRemainderConcurrency(): number {
+  const profile = getDeviceProfile()
+
+  if (profile.tier === 'high') return 5
+  if (profile.tier === 'mid') return 4
+
+  return 3
+}
+
+function getContactBackgroundConcurrency(): number {
+  const profile = getDeviceProfile()
+
+  if (profile.tier === 'high') return 3
+  if (profile.tier === 'mid') return 2
+
+  return 1
 }

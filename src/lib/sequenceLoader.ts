@@ -22,6 +22,14 @@ export function getFrameSrc(sequence: SequenceConfig, index: number): string {
   return getBundledFrameUrl(sequence.folder, filename) ?? `/src/assets/frames/${sequence.folder}/${filename}`
 }
 
+export function isFrameDecoded(sequence: SequenceConfig, index: number): boolean {
+  return frameCache.has(getFrameSrc(sequence, index))
+}
+
+export function isFramePending(sequence: SequenceConfig, index: number): boolean {
+  return pendingFrames.has(getFrameSrc(sequence, index))
+}
+
 export async function loadFrame(
   sceneId: string,
   sequence: SequenceConfig,
