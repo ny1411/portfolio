@@ -1,3 +1,5 @@
+import { getDeviceMemoryGb } from './deviceMemory'
+
 export interface DeviceProfile {
   tier: 'low' | 'mid' | 'high'
   maxDPR: number
@@ -18,7 +20,7 @@ export function getDeviceProfile(): DeviceProfile {
   }
 
   const cores = navigator.hardwareConcurrency ?? 4
-  const memory = 'deviceMemory' in navigator ? Number(navigator.deviceMemory) : 4
+  const memory = getDeviceMemoryGb() ?? 4
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const isTouch = window.matchMedia('(pointer: coarse)').matches
   const isLowPower = cores <= 4 || memory <= 4 || isTouch
