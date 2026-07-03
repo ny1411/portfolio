@@ -76,6 +76,7 @@ const skillIconMap: Record<string, TheSvgIcon> = {
 interface SkillTreeProps {
   branches?: readonly SkillTreeBranch[]
   initialSelectedNodeId?: string
+  isActive?: boolean
 }
 
 interface ConnectorPath {
@@ -109,6 +110,7 @@ interface BranchPathGeometry {
 export function SkillTree({
   branches = skillTreeBranches,
   initialSelectedNodeId = defaultSelectedSkillId,
+  isActive = true,
 }: SkillTreeProps) {
   const nodes = useMemo(() => branches.flatMap((branch) => flattenNodes(branch.nodes)), [branches])
   const initialNode = nodes.find((node) => node.id === initialSelectedNodeId) ?? nodes[0]
@@ -240,7 +242,7 @@ export function SkillTree({
             </div>
           </div>
 
-          <SkillDetailPanel skill={selectedNode} />
+          <SkillDetailPanel isActive={isActive} skill={selectedNode} />
         </div>
       </div>
     </section>
@@ -562,7 +564,7 @@ function TheSvgIcon({ icon }: { icon: TheSvgIcon }) {
   )
 }
 
-function SkillDetailPanel({ skill }: { skill: SkillTreeNode }) {
+function SkillDetailPanel({ isActive, skill }: { isActive: boolean; skill: SkillTreeNode }) {
   return (
     <aside
       className="skill-detail-panel"
@@ -576,7 +578,7 @@ function SkillDetailPanel({ skill }: { skill: SkillTreeNode }) {
       </header>
 
       <div className="skill-detail-panel__showcase-wrap">
-        <SkillShowcase skill={skill} />
+        <SkillShowcase isActive={isActive} skill={skill} />
       </div>
 
       <div className="skill-detail-panel__body" key={skill.id}>

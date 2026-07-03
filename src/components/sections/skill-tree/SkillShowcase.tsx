@@ -60,10 +60,11 @@ const skillModelRotations: Partial<Record<string, [number, number, number]>> = {
 }
 
 interface SkillShowcaseProps {
+  isActive?: boolean
   skill: SkillTreeNode
 }
 
-export function SkillShowcase({ skill }: SkillShowcaseProps) {
+export function SkillShowcase({ isActive = true, skill }: SkillShowcaseProps) {
   const profile = useMemo(() => getDeviceProfile(), [])
 
   return (
@@ -71,7 +72,7 @@ export function SkillShowcase({ skill }: SkillShowcaseProps) {
       <Canvas
         camera={{ fov: 38, position: [0, 0.15, 5.2] }}
         dpr={[1, profile.maxDPR]}
-        frameloop={profile.prefersReducedMotion ? 'demand' : 'always'}
+        frameloop={isActive && !profile.prefersReducedMotion ? 'always' : 'demand'}
         gl={{
           alpha: true,
           antialias: profile.tier !== 'low',
@@ -83,23 +84,30 @@ export function SkillShowcase({ skill }: SkillShowcaseProps) {
         <hemisphereLight color="#e0f2fe" groundColor="#020617" intensity={0.78} />
         <directionalLight color="#ffffff" intensity={1.8} position={[2.8, 3.4, 4.6]} />
         <pointLight color={skill.accent} intensity={2.1} position={[-2.2, 1.6, 2.8]} />
-        <SkillShowcaseScene skill={skill} reducedMotion={profile.prefersReducedMotion} />
+        <SkillShowcaseScene
+          isActive={isActive}
+          reducedMotion={profile.prefersReducedMotion}
+          skill={skill}
+        />
       </Canvas>
     </div>
   )
 }
 
 interface SkillShowcaseSceneProps {
+  isActive: boolean
   skill: SkillTreeNode
   reducedMotion: boolean
 }
 
-function SkillShowcaseScene({ skill, reducedMotion }: SkillShowcaseSceneProps) {
+function SkillShowcaseScene({ isActive, skill, reducedMotion }: SkillShowcaseSceneProps) {
   const groupRef = useRef<Group>(null)
   const modelUrl = skillModelUrls[skill.id]
   const modelRotation = skillModelRotations[skill.id] ?? [0, 0, 0]
 
   useFrame(({ camera, pointer }, delta) => {
+    if (!isActive) return
+
     const group = groupRef.current
     const step = Math.min(delta, 0.05)
     const targetX = reducedMotion ? 0 : pointer.y * 0.18

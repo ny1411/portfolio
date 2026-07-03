@@ -8,7 +8,11 @@ import { TransitionManager } from './TransitionManager'
 import { suitEvolutionExperiences } from './suitEvolutionData'
 import { useSuitEvolutionStore } from './useSuitEvolutionStore'
 
-export function SuitScene() {
+interface SuitSceneProps {
+  isActive: boolean
+}
+
+export function SuitScene({ isActive }: SuitSceneProps) {
   const deviceProfile = useMemo(() => getDeviceProfile(), [])
 
   return (
@@ -16,6 +20,7 @@ export function SuitScene() {
       <Canvas
         camera={{ fov: 35, position: [0.18, 0.02, 6.35] }}
         dpr={[1, deviceProfile.maxDPR]}
+        frameloop={isActive ? 'always' : 'demand'}
         gl={{
           alpha: true,
           antialias: deviceProfile.tier !== 'low',
@@ -23,7 +28,7 @@ export function SuitScene() {
         }}
         shadows={false}
       >
-        <CameraRig />
+        <CameraRig isActive={isActive} />
         <hemisphereLight color="#ffffff" groundColor="#ffffff" intensity={1.15} />
         <ambientLight intensity={1.35} />
         <directionalLight
@@ -45,7 +50,7 @@ export function SuitScene() {
   )
 }
 
-function CameraRig() {
+function CameraRig({ isActive }: { isActive: boolean }) {
   const { camera, size } = useThree()
   const targetPositionRef = useRef(new Vector3())
   const lookAtRef = useRef(new Vector3(0.62, 0.22, 0))
@@ -57,6 +62,8 @@ function CameraRig() {
   )
 
   useFrame(({ clock }) => {
+    if (!isActive) return
+
     const state = useSuitEvolutionStore.getState()
     const isCompact = size.width <= 900
     const stageSweep = (state.sectionProgress - 0.5) * (isCompact ? 0.12 : 0.26)

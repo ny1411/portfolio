@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, type RefObject } from 'react'
 import { smoothScrubProgress } from '../../lib/cinematicScrub'
+import { framePreloadScheduler } from '../../lib/framePreloadScheduler'
 import { getDeviceProfile } from '../../lib/performance'
-import { getFrameIndex, loadFrame, preloadFrameWindow } from '../../lib/sequenceLoader'
+import { getFrameIndex, loadFrame } from '../../lib/sequenceLoader'
 import type { SequenceConfig } from '../../types/sequence'
+import { useScrollStore } from './scrollStore'
 
 export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
+  const scrollDirection = useScrollStore((state) => state.direction)
   const lastDrawKeyRef = useRef<string>('')
   const latestRequestRef = useRef(0)
   const lastPreloadIndexRef = useRef<number | null>(null)
@@ -58,12 +61,18 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
 
       if (lastPreloadIndexRef.current !== frameIndex) {
         lastPreloadIndexRef.current = frameIndex
-        preloadFrameWindow(sceneId, sequence, frameIndex)
+        framePreloadScheduler.preloadFrameWindow({
+          centerIndex: frameIndex,
+          direction: scrollDirection,
+          priority: 'hot',
+          sceneId,
+          sequence,
+        })
       }
 
       return true
     },
-    [sceneId, sequence],
+    [sceneId, scrollDirection, sequence],
   )
 
   useEffect(() => {
