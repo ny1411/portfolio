@@ -77,6 +77,14 @@ export const skillModelAssetUrls = [
 	webSocketsUrl,
 ] as const;
 
+export const suitModelAssetUrls = [
+	peterParkerPhotographerSuitUrl,
+	ultimateSuitUrl,
+	hybridSuitUrl,
+] as const;
+
+export const projectPortalAssetUrls = [portalSingleRingUrl] as const;
+
 export const threeElementAssets = {
 	suits: {
 		peterParkerPhotographer: peterParkerPhotographerSuitUrl,
@@ -115,10 +123,8 @@ export const threeElementAssets = {
 } as const;
 
 export const allThreeElementAssetUrls = [
-	threeElementAssets.suits.peterParkerPhotographer,
-	threeElementAssets.suits.ultimate,
-	threeElementAssets.suits.hybrid,
+	...suitModelAssetUrls,
 	threeElementAssets.logo,
-	threeElementAssets.portalSingleRing,
+	...projectPortalAssetUrls,
 	...skillModelAssetUrls,
 ] as const;
