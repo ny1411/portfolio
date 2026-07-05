@@ -3,36 +3,8 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { MathUtils, type Group } from 'three'
 import { getDeviceProfile } from '../../../lib/performance'
-import { threeElementAssets } from '../../../lib/threeElementAssets'
+import { skillModelAssetUrlById } from '../../../lib/threeElementAssets'
 import type { SkillArtifactPreset, SkillTreeNode } from './types'
-
-const skillModelUrls: Partial<Record<string, string>> = {
-  axios: threeElementAssets.skills.axios,
-  css3: threeElementAssets.skills.css3,
-  'express-js': threeElementAssets.skills.expressJs,
-  'gemini-api': threeElementAssets.skills.geminiApi,
-  git: threeElementAssets.skills.git,
-  github: threeElementAssets.skills.github,
-  html5: threeElementAssets.skills.html5,
-  'javascript-es6': threeElementAssets.skills.javascriptEs6,
-  'jwt-jsonwebtoken': threeElementAssets.skills.jwtJsonwebtoken,
-  mongodb: threeElementAssets.skills.mongodb,
-  mongoose: threeElementAssets.skills.mongoose,
-  mysql: threeElementAssets.skills.mysql,
-  'node-js': threeElementAssets.skills.nodeJs,
-  npm: threeElementAssets.skills.npm,
-  postman: threeElementAssets.skills.postman,
-  prettier: threeElementAssets.skills.prettier,
-  'react-js': threeElementAssets.skills.reactJs,
-  'react-router': threeElementAssets.skills.reactRouter,
-  render: threeElementAssets.skills.render,
-  'socket-io': threeElementAssets.skills.socketIo,
-  'tailwind-css': threeElementAssets.skills.tailwindCss,
-  typescript: threeElementAssets.skills.typescript,
-  vercel: threeElementAssets.skills.vercel,
-  vite: threeElementAssets.skills.vite,
-  websockets: threeElementAssets.skills.websockets,
-}
 
 const skillModelRotations: Partial<Record<string, [number, number, number]>> = {
   axios: [0, -Math.PI / 2, 0],
@@ -102,7 +74,7 @@ interface SkillShowcaseSceneProps {
 
 function SkillShowcaseScene({ isActive, skill, reducedMotion }: SkillShowcaseSceneProps) {
   const groupRef = useRef<Group>(null)
-  const modelUrl = skillModelUrls[skill.id]
+  const modelUrl = getSkillModelUrl(skill.id)
   const modelRotation = skillModelRotations[skill.id] ?? [0, 0, 0]
 
   useFrame(({ camera, pointer }, delta) => {
@@ -134,6 +106,10 @@ function SkillShowcaseScene({ isActive, skill, reducedMotion }: SkillShowcaseSce
       )}
     </group>
   )
+}
+
+function getSkillModelUrl(skillId: string): string | undefined {
+  return skillModelAssetUrlById[skillId as keyof typeof skillModelAssetUrlById]
 }
 
 function SkillModel({ modelUrl, rotation }: { modelUrl: string; rotation: [number, number, number] }) {

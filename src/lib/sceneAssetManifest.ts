@@ -26,7 +26,7 @@ export interface SceneAssetManifestEntry {
   glbAssetUrls: readonly string[]
   id: SceneId
   index: number
-  preloadModule?: SectionModulePreloader
+  preloadModules?: readonly SectionModulePreloader[]
   priorityRole: SceneAssetPriorityRole
   scene: SceneConfig & { id: SceneId }
   sequence?: SequenceConfig
@@ -52,12 +52,20 @@ const contactSequence = {
   preloadRadius: 18,
 } as const satisfies SequenceConfig
 
+export const preloadContactSection = () => import('../components/sections/ContactSection')
+export const preloadMaskingParallaxSection = () => import('../components/sections/MaskingParallaxSection')
+export const preloadProjectMultiverseSection = () => import('../components/sections/ProjectMultiverseSection')
+export const preloadProjectMultiverseScene = () =>
+  import('../components/sections/project-multiverse/ProjectMultiverseScene')
+export const preloadSkillsSection = () => import('../components/sections/SkillsSection')
+export const preloadSuitEvolutionSection = () => import('../components/sections/SuitEvolutionSection')
+
 export const sectionModuleLoaders = {
-  contact: () => import('../components/sections/ContactSection'),
-  maskingParallax: () => import('../components/sections/MaskingParallaxSection'),
-  projectMultiverse: () => import('../components/sections/ProjectMultiverseSection'),
-  skills: () => import('../components/sections/SkillsSection'),
-  suitEvolution: () => import('../components/sections/SuitEvolutionSection'),
+  contact: preloadContactSection,
+  maskingParallax: preloadMaskingParallaxSection,
+  projectMultiverse: preloadProjectMultiverseSection,
+  skills: preloadSkillsSection,
+  suitEvolution: preloadSuitEvolutionSection,
 } as const satisfies Record<string, SectionModulePreloader>
 
 export const sceneAssetManifest: readonly SceneAssetManifestEntry[] = [
@@ -81,7 +89,7 @@ export const sceneAssetManifest: readonly SceneAssetManifestEntry[] = [
       label: 'Masking',
       pinDuration: 420,
     },
-    preloadModule: sectionModuleLoaders.maskingParallax,
+    preloadModules: [preloadMaskingParallaxSection],
     glbAssetUrls: [],
     priorityRole: 'warm-section',
   },
@@ -93,7 +101,7 @@ export const sceneAssetManifest: readonly SceneAssetManifestEntry[] = [
       label: 'Experience Evolution',
       pinDuration: 4200,
     },
-    preloadModule: sectionModuleLoaders.suitEvolution,
+    preloadModules: [preloadSuitEvolutionSection],
     glbAssetUrls: suitModelAssetUrls,
     priorityRole: 'warm-three-section',
   },
@@ -105,7 +113,7 @@ export const sceneAssetManifest: readonly SceneAssetManifestEntry[] = [
       label: 'Project Multiverse',
       pinDuration: 2200,
     },
-    preloadModule: sectionModuleLoaders.projectMultiverse,
+    preloadModules: [preloadProjectMultiverseSection, preloadProjectMultiverseScene],
     glbAssetUrls: projectPortalAssetUrls,
     priorityRole: 'warm-three-section',
   },
@@ -117,7 +125,7 @@ export const sceneAssetManifest: readonly SceneAssetManifestEntry[] = [
       label: 'Skills',
       pinDuration: 1400,
     },
-    preloadModule: sectionModuleLoaders.skills,
+    preloadModules: [preloadSkillsSection],
     glbAssetUrls: skillModelAssetUrls,
     priorityRole: 'warm-three-section',
   },
@@ -130,7 +138,7 @@ export const sceneAssetManifest: readonly SceneAssetManifestEntry[] = [
       sequence: contactSequence,
     },
     sequence: contactSequence,
-    preloadModule: sectionModuleLoaders.contact,
+    preloadModules: [preloadContactSection],
     glbAssetUrls: [],
     priorityRole: 'background-sequence',
   },

@@ -178,10 +178,10 @@ export function ScrollyPage() {
     if (!startupReady) return
 
     getWarmScenes(activeSceneIndex).forEach((scene) => {
-      if (scene.preloadModule && !preloadedSectionIdsRef.current.has(scene.id)) {
+      if (scene.preloadModules?.length && !preloadedSectionIdsRef.current.has(scene.id)) {
         preloadedSectionIdsRef.current.add(scene.id)
 
-        void scene.preloadModule().catch(() => {
+        void Promise.all(scene.preloadModules.map((preloadModule) => preloadModule())).catch(() => {
           preloadedSectionIdsRef.current.delete(scene.id)
         })
       }

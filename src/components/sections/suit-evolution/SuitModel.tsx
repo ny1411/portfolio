@@ -5,7 +5,6 @@ import { Box3, Mesh, Vector3, type Group, type Material } from 'three';
 import { clone as cloneSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 import type { SuitEvolutionExperience } from './suitEvolutionData';
-import { suitEvolutionExperiences } from './suitEvolutionData';
 import { useSuitEvolutionStore } from './useSuitEvolutionStore';
 
 interface SuitModelProps {
@@ -175,6 +174,3 @@ function prepareModel(scene: Group): {
 	return { model, materials, scale };
 }
 
-suitEvolutionExperiences.forEach((experience) => {
-	useGLTF.preload(experience.modelUrl);
-});

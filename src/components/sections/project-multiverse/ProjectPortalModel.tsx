@@ -665,5 +665,3 @@ const portalFragmentShader = `
     );
   }
 `
-
-useGLTF.preload(threeElementAssets.portalSingleRing)
