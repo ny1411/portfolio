@@ -9,6 +9,7 @@ import {
 } from '../../lib/sceneAssetManifest'
 import { framePreloadScheduler } from '../../lib/framePreloadScheduler'
 import { getDeviceProfile } from '../../lib/performance'
+import { deleteOldFrameCaches } from '../../lib/persistentFrameCache'
 import { getFrameIndex } from '../../lib/sequenceLoader'
 import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
 import { HeroSection } from '../sections/HeroSection'
@@ -65,6 +66,10 @@ export function ScrollyPage() {
   const scrollDirection = useScrollStore((state) => state.direction)
 
   useScrollSync()
+
+  useEffect(() => {
+    void deleteOldFrameCaches()
+  }, [])
 
   useEffect(() => {
     const controller = new AbortController()

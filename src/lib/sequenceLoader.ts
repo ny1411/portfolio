@@ -1,5 +1,6 @@
 import { frameCache } from './frameCache'
 import { getBundledFrameUrl } from './frameManifest'
+import { getCachedFrameResponse, putFrameResponse } from './persistentFrameCache'
 import type { CachedFrame, SequenceConfig } from '../types/sequence'
 
 const pendingFrames = new Map<string, Promise<CachedFrame>>()
@@ -43,26 +44,44 @@ export async function loadFrame(
   const pending = pendingFrames.get(src)
   if (pending) return pending
 
-  const pendingFrame = fetch(src, { signal })
-    .then(async (response) => {
-      if (!response.ok) {
-        throw new Error(`Failed to load frame ${src}: ${response.status}`)
-      }
-
-      const blob = await response.blob()
-      const frame =
-        'createImageBitmap' in window
-          ? await createImageBitmap(blob)
-          : await loadImageElement(URL.createObjectURL(blob))
-      const cachedFrame = { key: src, sceneId, frame, priority: 1 }
-
-      frameCache.set(src, cachedFrame)
-      return cachedFrame
-    })
+  const pendingFrame = loadRawFrameResponse(src, signal)
+    .then((response) => decodeAndCacheFrame(sceneId, src, response))
     .finally(() => pendingFrames.delete(src))
 
   pendingFrames.set(src, pendingFrame)
   return pendingFrame
+}
+
+async function loadRawFrameResponse(src: string, signal?: AbortSignal): Promise<Response> {
+  if (signal?.aborted) throw createAbortError()
+
+  const cachedResponse = await getCachedFrameResponse(src)
+  if (cachedResponse) return cachedResponse
+  if (signal?.aborted) throw createAbortError()
+
+  const response = await fetch(src, { signal })
+  if (!response.ok) {
+    throw new Error(`Failed to load frame ${src}: ${response.status}`)
+  }
+
+  void putFrameResponse(src, response.clone())
+  return response
+}
+
+async function decodeAndCacheFrame(
+  sceneId: string,
+  src: string,
+  response: Response,
+): Promise<CachedFrame> {
+  const blob = await response.blob()
+  const frame =
+    'createImageBitmap' in window
+      ? await createImageBitmap(blob)
+      : await loadImageElement(URL.createObjectURL(blob))
+  const cachedFrame = { key: src, sceneId, frame, priority: 1 }
+
+  frameCache.set(src, cachedFrame)
+  return cachedFrame
 }
 
 export function preloadFrameWindow(sceneId: string, sequence: SequenceConfig, centerIndex: number): void {
@@ -168,4 +187,14 @@ function getNearbyIndexes(centerIndex: number, startIndex: number, endIndex: num
   }
 
   return indexes
+}
+
+function createAbortError(): Error | DOMException {
+  if (typeof DOMException !== 'undefined') {
+    return new DOMException('Frame load aborted', 'AbortError')
+  }
+
+  const error = new Error('Frame load aborted')
+  error.name = 'AbortError'
+  return error
 }

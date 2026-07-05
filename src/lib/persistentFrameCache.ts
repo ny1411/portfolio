@@ -1,5 +1,5 @@
 import type { SequenceConfig } from '../types/sequence'
-import { getFrameSrc } from './sequenceLoader'
+import { getBundledFrameUrl } from './frameManifest'
 
 export const FRAME_CACHE_NAME = 'portfolio-frames-v1'
 export const FRAME_CACHE_PREFIX = '/frames/'
@@ -139,4 +139,12 @@ function getWorkerCount(concurrency: number): number {
   if (!Number.isFinite(concurrency)) return 0
 
   return Math.max(0, Math.floor(concurrency))
+}
+
+function getFrameSrc(sequence: SequenceConfig, index: number): string {
+  const extension = sequence.extension ?? 'jpg'
+  const padLength = sequence.padLength ?? 4
+  const filename = `${sequence.prefix}${String(index).padStart(padLength, '0')}.${extension}`
+
+  return getBundledFrameUrl(sequence.folder, filename)
 }
