@@ -10,7 +10,7 @@ import {
 import { framePreloadScheduler } from '../../lib/framePreloadScheduler'
 import { getDeviceProfile } from '../../lib/performance'
 import { deleteOldFrameCaches } from '../../lib/persistentFrameCache'
-import { getFrameIndex } from '../../lib/sequenceLoader'
+import { getFrameIndex, preloadSequenceFrames } from '../../lib/sequenceLoader'
 import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
 import { HeroSection } from '../sections/HeroSection'
 import { Scene } from './Scene'
@@ -51,6 +51,7 @@ const sceneContent: ComponentType[] = [
 ]
 
 const MIN_STARTUP_LOADER_MS = 3000
+const CRITICAL_HERO_PRELOAD_FRAME_COUNT = 12
 const STARTUP_PRELOAD_FRAME_LIMIT = 50
 const STARTUP_FRAME_PRELOAD_CONCURRENCY = 6
 
@@ -74,6 +75,10 @@ export function ScrollyPage() {
   useEffect(() => {
     const controller = new AbortController()
     const heroScene = sceneAssetManifestById.hero
+    if (heroScene.sequence) {
+      preloadSequenceFrames(heroScene.sequence, CRITICAL_HERO_PRELOAD_FRAME_COUNT)
+    }
+
     const minimumDelay = new Promise((resolve) => {
       window.setTimeout(resolve, MIN_STARTUP_LOADER_MS)
     })

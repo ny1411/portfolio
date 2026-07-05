@@ -119,6 +119,7 @@ export function preloadSequenceFrames(sequence: SequenceConfig, count: number): 
     link.rel = 'preload'
     link.as = 'image'
     link.href = href
+    link.setAttribute('fetchpriority', 'high')
     document.head.appendChild(link)
   }
 }
