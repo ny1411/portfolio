@@ -84,6 +84,11 @@ async function decodeAndCacheFrame(
   return cachedFrame
 }
 
+/**
+ * @deprecated Use `framePreloadScheduler.preloadFrameWindow()` instead.
+ * This function does not support direction-aware or device-adaptive frame ordering.
+ * Kept for backward compatibility only.
+ */
 export function preloadFrameWindow(sceneId: string, sequence: SequenceConfig, centerIndex: number): void {
   const radius = sequence.preloadRadius ?? 12
   const startIndex = Math.max(sequence.startIndex, centerIndex - radius)
