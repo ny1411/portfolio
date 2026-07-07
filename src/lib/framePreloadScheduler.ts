@@ -1,5 +1,5 @@
 import type { SequenceConfig } from '../types/sequence'
-import { getDeviceProfile } from './performance'
+import { getConcurrencyPolicy, getDeviceProfile, type PriorityConcurrencyLimits } from './performance'
 import {
   getFrameSrc,
   isFrameDecoded,
@@ -80,20 +80,6 @@ const priorityRank: Record<FramePreloadPriority, number> = {
   hot: 1,
   warm: 2,
   background: 3,
-}
-
-const idlePriorityLimits: Record<FramePreloadPriority, number> = {
-  critical: 6,
-  hot: 4,
-  warm: 2,
-  background: 5,
-}
-
-const scrollingPriorityLimits: Record<FramePreloadPriority, number> = {
-  critical: 6,
-  hot: 4,
-  warm: 1,
-  background: 1,
 }
 
 export class FramePreloadScheduler {
@@ -278,7 +264,10 @@ export class FramePreloadScheduler {
   }
 
   private pump(): void {
-    const totalLimit = this.isScrolling ? 4 : 6
+    const policy = getConcurrencyPolicy()
+    const totalLimit = this.isScrolling
+      ? Math.min(policy.totalLimit, policy.scrollingLimits.critical + policy.scrollingLimits.hot)
+      : policy.totalLimit
 
     while (this.inFlightJobs.size < totalLimit) {
       const nextIndex = this.findNextRunnableJobIndex()
@@ -303,7 +292,9 @@ export class FramePreloadScheduler {
   }
 
   private getJobLimit(job: FramePreloadJob): number {
-    const priorityLimit = (this.isScrolling ? scrollingPriorityLimits : idlePriorityLimits)[job.priority]
+    const policy = getConcurrencyPolicy()
+    const limits: PriorityConcurrencyLimits = this.isScrolling ? policy.scrollingLimits : policy.idleLimits
+    const priorityLimit = limits[job.priority]
 
     return Math.min(priorityLimit, job.phaseConcurrency ?? priorityLimit)
   }
@@ -333,7 +324,16 @@ export class FramePreloadScheduler {
       }
 
       this.inFlightJobs.delete(job.key)
-      window.setTimeout(() => this.pump(), 0)
+
+      // Yield between background batches to avoid starving the main thread.
+      // Critical and hot jobs resume immediately; background/warm jobs yield
+      // for a brief interval that varies by device tier.
+      const yieldMs = getYieldMs(job.priority)
+      if (yieldMs > 0) {
+        window.setTimeout(() => this.pump(), yieldMs)
+      } else {
+        window.setTimeout(() => this.pump(), 0)
+      }
     }
   }
 
@@ -385,6 +385,17 @@ function getPhaseConcurrency(concurrency?: number): number | undefined {
   if (concurrency === undefined || !Number.isFinite(concurrency)) return undefined
 
   return Math.max(1, Math.floor(concurrency))
+}
+
+/**
+ * Returns the yield delay (ms) after completing a job, based on priority
+ * and device tier. Critical/hot jobs never yield; background/warm jobs
+ * yield briefly to let the browser breathe.
+ */
+function getYieldMs(priority: FramePreloadPriority): number {
+  if (priority === 'critical' || priority === 'hot') return 0
+
+  return getConcurrencyPolicy().backgroundYieldMs
 }
 
 /**
