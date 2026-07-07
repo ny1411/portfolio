@@ -63,6 +63,15 @@ export function isPersistentFrameCacheAvailable(): boolean {
   return typeof window !== 'undefined' && 'caches' in window
 }
 
+const metrics = {
+  hits: 0,
+  misses: 0,
+}
+
+export function getPersistentCacheMetrics(): { hits: number; misses: number } {
+  return { ...metrics }
+}
+
 export async function getCachedFrameResponse(url: string): Promise<Response | undefined> {
   const cacheUrl = getPersistentFrameCacheUrl(url)
   if (!cacheUrl) return undefined
@@ -70,6 +79,12 @@ export async function getCachedFrameResponse(url: string): Promise<Response | un
   try {
     const cache = await window.caches.open(getFrameCacheName())
     const response = await cache.match(cacheUrl)
+
+    if (response) {
+      metrics.hits += 1
+    } else {
+      metrics.misses += 1
+    }
 
     return response ?? undefined
   } catch {

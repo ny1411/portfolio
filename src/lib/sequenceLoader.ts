@@ -31,6 +31,10 @@ export function isFramePending(sequence: SequenceConfig, index: number): boolean
   return pendingFrames.has(getFrameSrc(sequence, index))
 }
 
+export function getPendingFrameCount(): number {
+  return pendingFrames.size
+}
+
 export async function loadFrame(
   sceneId: string,
   sequence: SequenceConfig,
