@@ -8,7 +8,7 @@ import {
   sectionModuleLoaders,
 } from '../../lib/sceneAssetManifest'
 import { framePreloadScheduler } from '../../lib/framePreloadScheduler'
-import { getDeviceProfile } from '../../lib/performance'
+import { getConcurrencyPolicy } from '../../lib/performance'
 import { deleteOldFrameCaches } from '../../lib/persistentFrameCache'
 import { getFrameIndex, preloadSequenceFrames } from '../../lib/sequenceLoader'
 import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
@@ -53,7 +53,6 @@ const sceneContent: ComponentType[] = [
 const MIN_STARTUP_LOADER_MS = 3000
 const CRITICAL_HERO_PRELOAD_FRAME_COUNT = 12
 const STARTUP_PRELOAD_FRAME_LIMIT = 50
-const STARTUP_FRAME_PRELOAD_CONCURRENCY = 6
 
 export function ScrollyPage() {
   const [startupReady, setStartupReady] = useState(false)
@@ -84,7 +83,7 @@ export function ScrollyPage() {
     })
     const framePreload = heroScene.sequence
       ? framePreloadScheduler.preloadStartupHeroFrames({
-          concurrency: STARTUP_FRAME_PRELOAD_CONCURRENCY,
+          concurrency: getConcurrencyPolicy().startupHeroConcurrency,
           frameLimit: STARTUP_PRELOAD_FRAME_LIMIT,
           sceneId: heroScene.id,
           sequence: heroScene.sequence,
@@ -115,7 +114,7 @@ export function ScrollyPage() {
 
     void framePreloadScheduler
       .preloadHeroRemainder({
-        concurrency: getHeroRemainderConcurrency(),
+        concurrency: getConcurrencyPolicy().heroRemainderConcurrency,
         sceneId: heroScene.id,
         sequence: heroScene.sequence,
         skippedFrameCount: STARTUP_PRELOAD_FRAME_LIMIT,
@@ -147,7 +146,7 @@ export function ScrollyPage() {
     contactWarmupStartedRef.current = true
     void framePreloadScheduler
       .preloadContactBackground({
-        concurrency: getContactBackgroundConcurrency(),
+        concurrency: getConcurrencyPolicy().contactBackgroundConcurrency,
         sceneId: contactScene.id,
         sequence: contactScene.sequence,
       })
@@ -276,22 +275,4 @@ function isSceneInWarmWindow(index: number, activeSceneIndex: number, startupRea
   if (!startupReady) return index === 0
 
   return Math.abs(index - activeSceneIndex) <= 1
-}
-
-function getHeroRemainderConcurrency(): number {
-  const profile = getDeviceProfile()
-
-  if (profile.tier === 'high') return 5
-  if (profile.tier === 'mid') return 4
-
-  return 3
-}
-
-function getContactBackgroundConcurrency(): number {
-  const profile = getDeviceProfile()
-
-  if (profile.tier === 'high') return 3
-  if (profile.tier === 'mid') return 2
-
-  return 1
 }
