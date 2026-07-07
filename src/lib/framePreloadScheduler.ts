@@ -1,4 +1,5 @@
 import type { SequenceConfig } from '../types/sequence'
+import { getDeviceProfile } from './performance'
 import {
   getFrameSrc,
   isFrameDecoded,
@@ -43,6 +44,11 @@ interface PreloadFrameWindowOptions {
   priority?: FramePreloadPriority
   radius?: number
   sceneId: string
+  sequence: SequenceConfig
+}
+
+interface AdaptiveRadiusOptions {
+  isActiveScene?: boolean
   sequence: SequenceConfig
 }
 
@@ -157,8 +163,12 @@ export class FramePreloadScheduler {
   }
 
   preloadFrameWindow(options: PreloadFrameWindowOptions): void {
-    const radius = options.radius ?? options.sequence.preloadRadius ?? 12
-    const maxFrames = options.maxFrames ?? (options.sequence.preloadStrategy === 'cinematic' ? 8 : 12)
+    const adaptiveRadius = getAdaptiveRadius({
+      isActiveScene: options.priority === 'hot',
+      sequence: options.sequence,
+    })
+    const radius = options.radius ?? adaptiveRadius
+    const maxFrames = options.maxFrames ?? getAdaptiveMaxFrames(options.priority === 'hot')
     const indexes = getDirectionAwareWindowIndexes({
       centerIndex: options.centerIndex,
       direction: options.direction ?? 'down',
@@ -377,6 +387,15 @@ function getPhaseConcurrency(concurrency?: number): number | undefined {
   return Math.max(1, Math.floor(concurrency))
 }
 
+/**
+ * Builds direction-aware frame indexes using a 2:1 asymmetric ratio.
+ *
+ * When scrolling downward, two forward frames are queued for every one
+ * backward frame. This keeps the look-ahead buffer deeper while still
+ * warming a few frames behind for small scroll reversals.
+ *
+ * The ratio flips when scrolling upward.
+ */
 function getDirectionAwareWindowIndexes({
   centerIndex,
   direction,
@@ -396,9 +415,24 @@ function getDirectionAwareWindowIndexes({
   const primarySign = direction === 'up' ? -1 : 1
   const secondarySign = primarySign * -1
 
-  for (let offset = 1; offset <= radius && indexes.length < maxFrames; offset += 1) {
-    addBoundedIndex(indexes, centerIndex + offset * primarySign, startIndex, endIndex, maxFrames)
-    addBoundedIndex(indexes, centerIndex + offset * secondarySign, startIndex, endIndex, maxFrames)
+  // Asymmetric split: ~2/3 primary direction, ~1/3 secondary direction
+  let primaryOffset = 0
+  let secondaryOffset = 0
+
+  for (let step = 0; indexes.length < maxFrames && (primaryOffset < radius || secondaryOffset < radius); step += 1) {
+    // Add two primary-direction frames per one secondary-direction frame
+    if (primaryOffset < radius) {
+      primaryOffset += 1
+      addBoundedIndex(indexes, centerIndex + primaryOffset * primarySign, startIndex, endIndex, maxFrames)
+    }
+    if (primaryOffset < radius && indexes.length < maxFrames) {
+      primaryOffset += 1
+      addBoundedIndex(indexes, centerIndex + primaryOffset * primarySign, startIndex, endIndex, maxFrames)
+    }
+    if (secondaryOffset < radius && indexes.length < maxFrames) {
+      secondaryOffset += 1
+      addBoundedIndex(indexes, centerIndex + secondaryOffset * secondarySign, startIndex, endIndex, maxFrames)
+    }
   }
 
   return indexes
@@ -416,6 +450,53 @@ function addBoundedIndex(
   if (indexes.includes(index)) return
 
   indexes.push(index)
+}
+
+/**
+ * Returns an adaptive preload radius based on device tier and sequence config.
+ * High-end devices get a larger look-ahead; low-end devices get a smaller one.
+ */
+export function getAdaptiveRadius({ isActiveScene, sequence }: AdaptiveRadiusOptions): number {
+  const configRadius = sequence.preloadRadius
+  if (configRadius !== undefined) return configRadius
+
+  const profile = getDeviceProfile()
+
+  if (isActiveScene) {
+    switch (profile.tier) {
+      case 'high': return 20
+      case 'mid': return 14
+      case 'low': return 8
+    }
+  }
+
+  // Warm (non-active) scenes use a smaller radius
+  switch (profile.tier) {
+    case 'high': return 12
+    case 'mid': return 8
+    case 'low': return 5
+  }
+}
+
+/**
+ * Returns adaptive max frame count for the preload window.
+ */
+function getAdaptiveMaxFrames(isActiveScene: boolean): number {
+  const profile = getDeviceProfile()
+
+  if (isActiveScene) {
+    switch (profile.tier) {
+      case 'high': return 16
+      case 'mid': return 12
+      case 'low': return 8
+    }
+  }
+
+  switch (profile.tier) {
+    case 'high': return 10
+    case 'mid': return 8
+    case 'low': return 5
+  }
 }
 
 function isAbortError(error: unknown): boolean {

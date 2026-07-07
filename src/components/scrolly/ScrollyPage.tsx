@@ -162,12 +162,12 @@ export function ScrollyPage() {
 
       const progress = getWarmSceneProgress(scene.index, activeSceneIndex, sceneProgress, scrollDirection)
       const centerIndex = getFrameIndex(scene.sequence, progress)
+      const isActive = scene.index === activeSceneIndex
 
       framePreloadScheduler.preloadFrameWindow({
         centerIndex,
         direction: scrollDirection,
-        maxFrames: scene.index === activeSceneIndex ? 12 : 8,
-        priority: scene.index === activeSceneIndex ? 'hot' : 'warm',
+        priority: isActive ? 'hot' : 'warm',
         sceneId: scene.id,
         sequence: scene.sequence,
       })
