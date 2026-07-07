@@ -11,6 +11,7 @@ import { framePreloadScheduler } from '../../lib/framePreloadScheduler'
 import { getConcurrencyPolicy } from '../../lib/performance'
 import { deleteOldFrameCaches } from '../../lib/persistentFrameCache'
 import { getFrameIndex, preloadSequenceFrames } from '../../lib/sequenceLoader'
+import { initPreloadDebug } from '../../lib/preloadDebug'
 import { SpiderLogoLoader } from '../loaders/SpiderLogoLoader'
 import { HeroSection } from '../sections/HeroSection'
 import { Scene } from './Scene'
@@ -69,6 +70,7 @@ export function ScrollyPage() {
 
   useEffect(() => {
     void deleteOldFrameCaches()
+    initPreloadDebug()
   }, [])
 
   useEffect(() => {
