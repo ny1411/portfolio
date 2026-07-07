@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, type RefObject } from 'react'
 import { smoothScrubProgress } from '../../lib/cinematicScrub'
-import { framePreloadScheduler } from '../../lib/framePreloadScheduler'
+import { framePreloadScheduler, type FramePreloadDirection } from '../../lib/framePreloadScheduler'
 import { getDeviceProfile } from '../../lib/performance'
 import { getFrameIndex, loadFrame } from '../../lib/sequenceLoader'
 import type { SequenceConfig } from '../../types/sequence'
@@ -11,6 +11,7 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
   const lastDrawKeyRef = useRef<string>('')
   const latestRequestRef = useRef(0)
   const lastPreloadIndexRef = useRef<number | null>(null)
+  const lastPreloadDirectionRef = useRef<FramePreloadDirection>('down')
   const smoothedProgressRef = useRef(0)
   const lastTickRef = useRef<number | null>(null)
 
@@ -59,8 +60,14 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
       drawCover(context, cached.frame, width, height)
       lastDrawKeyRef.current = drawKey
 
-      if (lastPreloadIndexRef.current !== frameIndex) {
+      // Re-trigger the preload window when the drawn frame changes OR when
+      // the scroll direction reverses — even if the frame index is the same.
+      // This ensures an upward scroll reversal immediately starts warming
+      // frames behind the current position.
+      const directionChanged = lastPreloadDirectionRef.current !== scrollDirection
+      if (lastPreloadIndexRef.current !== frameIndex || directionChanged) {
         lastPreloadIndexRef.current = frameIndex
+        lastPreloadDirectionRef.current = scrollDirection
         framePreloadScheduler.preloadFrameWindow({
           centerIndex: frameIndex,
           direction: scrollDirection,
@@ -81,6 +88,7 @@ export function useImageSequence(sceneId: string, sequence?: SequenceConfig) {
     lastTickRef.current = null
     lastDrawKeyRef.current = ''
     lastPreloadIndexRef.current = null
+    lastPreloadDirectionRef.current = 'down'
   }, [sequence])
 
   return { draw }
