@@ -89,6 +89,34 @@ export class FramePreloadScheduler {
   private queuedJobs = new Map<string, FramePreloadJob>()
   private queue: FramePreloadJob[] = []
 
+  lastFailedFrameUrl: string | undefined = undefined
+
+  get queueLengthByPriority(): Record<FramePreloadPriority, number> {
+    const counts: Record<FramePreloadPriority, number> = {
+      critical: 0,
+      hot: 0,
+      warm: 0,
+      background: 0,
+    }
+    this.queue.forEach((job) => {
+      counts[job.priority] += 1
+    })
+    return counts
+  }
+
+  get inFlightByPriority(): Record<FramePreloadPriority, number> {
+    const counts: Record<FramePreloadPriority, number> = {
+      critical: 0,
+      hot: 0,
+      warm: 0,
+      background: 0,
+    }
+    this.inFlightJobs.forEach((job) => {
+      counts[job.priority] += 1
+    })
+    return counts
+  }
+
   setScrolling(isScrolling: boolean): void {
     if (this.isScrolling === isScrolling) return
 
@@ -317,6 +345,9 @@ export class FramePreloadScheduler {
 
       job.resolve()
     } catch (error) {
+      if (!isAbortError(error)) {
+        this.lastFailedFrameUrl = job.key
+      }
       job.reject(error)
     } finally {
       if (job.signal && job.abortParent) {
