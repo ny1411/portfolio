@@ -1,13 +1,14 @@
 import { OrbitControls, Stars } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 import {
+  Bloom,
   ChromaticAberration,
   DepthOfField,
   EffectComposer,
   Noise,
   Vignette,
 } from '@react-three/postprocessing'
-import { BlendFunction, BloomEffect } from 'postprocessing'
+import { BlendFunction } from 'postprocessing'
 import { Suspense, useEffect, useMemo, useRef, type RefObject } from 'react'
 import {
   AdditiveBlending,
@@ -523,29 +524,17 @@ function PortalPostEffects({ isActive, profile }: { isActive: boolean; profile: 
   const focusedPortalId = useProjectMultiverseStore((state) => state.focusedPortalId)
   const isFocused = focusedPortalId !== null
   const highQuality = profile.tier === 'high' && !profile.prefersReducedMotion
-  const bloomEffect = useMemo(
-    () =>
-      new BloomEffect({
-        intensity: 1.28,
-        luminanceThreshold: 0.32,
-        mipmapBlur: true,
-        radius: profile.tier === 'low' ? 0.38 : 0.68,
-      }),
-    [profile.tier],
-  )
-  const bloomEffectRef = useRef<BloomEffect>(null)
+  const bloomRef = useRef<any>(null)
   const chromaticOffset = useMemo(
     () => new Vector2(0.00032, 0.00018),
     [],
   )
   const chromaticOffsetRef = useRef(chromaticOffset)
 
-  useEffect(() => () => bloomEffect.dispose(), [bloomEffect])
-
   useFrame((_, delta) => {
     const step = Math.min(delta, 0.05)
     const immersion = Math.max(portalFrameMotion.immersion, isFocused ? 1 : 0)
-    const activeBloom = bloomEffectRef.current
+    const activeBloom = bloomRef.current
     if (activeBloom) {
       activeBloom.intensity = MathUtils.damp(activeBloom.intensity, 1.28 + immersion * 0.8, 5, step)
     }
@@ -569,24 +558,24 @@ function PortalPostEffects({ isActive, profile }: { isActive: boolean; profile: 
   return (
     <EffectComposer
       enabled={isActive}
-      multisampling={profile.tier === 'high' && !isFocused ? 4 : 0}
+      multisampling={profile.tier === 'high' ? 4 : 0}
     >
-      <primitive object={bloomEffect} ref={bloomEffectRef} />
+      <Bloom
+        ref={bloomRef}
+        intensity={1.28}
+        luminanceThreshold={0.32}
+        mipmapBlur={true}
+        radius={profile.tier === 'low' ? 0.38 : 0.68}
+      />
       {profile.tier !== 'low' && !profile.prefersReducedMotion ? (
         <ChromaticAberration offset={chromaticOffset} radialModulation />
-      ) : (
-        <></>
-      )}
+      ) : null}
       {highQuality && isFocused ? (
         <DepthOfField bokehScale={1.3} focusDistance={0.014} focalLength={0.03} />
-      ) : (
-        <></>
-      )}
+      ) : null}
       {profile.tier !== 'low' ? (
         <Noise blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.04} premultiply />
-      ) : (
-        <></>
-      )}
+      ) : null}
       <Vignette darkness={0.72} eskil={false} offset={0.22} />
     </EffectComposer>
   )
