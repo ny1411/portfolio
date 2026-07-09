@@ -569,13 +569,13 @@ function PortalPostEffects({ isActive, profile }: { isActive: boolean; profile: 
       />
       {profile.tier !== 'low' && !profile.prefersReducedMotion ? (
         <ChromaticAberration offset={chromaticOffset} radialModulation />
-      ) : null}
+      ) : <></>}
       {highQuality && isFocused ? (
         <DepthOfField bokehScale={1.3} focusDistance={0.014} focalLength={0.03} />
-      ) : null}
+      ) : <></>}
       {profile.tier !== 'low' ? (
         <Noise blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.04} premultiply />
-      ) : null}
+      ) : <></>}
       <Vignette darkness={0.72} eskil={false} offset={0.22} />
     </EffectComposer>
   )
